@@ -1,5 +1,5 @@
 % !TeX root = RJwrapper.tex
-\title{Ordinal Regression Diagnostics in R: An Introduction to the ordr package}
+\title{Surrogate-based Residuals and Diagnostics in R: An Introduction to the sure package}
 \author{by Brandon M. Greenwell, Author Two and Author Three}
 
 \maketitle
@@ -13,7 +13,17 @@ An abstract of less than 150 words.
 \section{Introduction}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Categorical outcomes are encountered frequently in practice. Furthermore, it is not uncommon for the categorical outcome $\mathcal{Y}$ to have a natural ordering. For instance, in an opinon poll, the response may be satisfaction (e.g., $\mathcal{Y} \in \left\{Low, Medium, High\right\}$).
+Categorical outcomes are encountered frequently in practice accross different fields. For example, in medical studies, the outcome of interest is often binary (e.g., presence or absense of a particular disease after applying a treatment). It is also not uncommon for a categorical outcome $\mathcal{Y}$ to have a natural ordering. For instance, in an opinon poll, the response may be satisfaction (e.g., $\mathcal{Y} \in \left\{Low, Medium, High\right\}$).
+
+Logistic and probit regression are popular choices for modelling a binary outcome. The surrogate approach to constructing residuals actually applies to a wide class of general models of the form 
+\begin{equation*}
+  \mathcal{Y} \sim F_a\left(y; \boldsymbol{X}, \boldsymbol{\beta}\right)
+\end{equation*}
+where $F_a\left(\cdot\right)$ is a discrete cumulative distribution function. This includes binary regression as a special case. For example, the probit model has
+\begin{equation*}
+  \mathcal{Y} \sim bernoulli\left[\Phi\left(\boldsymbol{x}^\top\boldsymbol{\beta}\right)\right],
+\end{equation*}
+where $\Phi\left(\cdot\right)$ is the cumulative distribution function for the standard normal distribution.
 
 The \dfn{cumulative link} model is a natural choice for modelling an ordinal outcome. Consider an ordinal categorical outcome $\mathcal{Y}$ with ordered categories $1 < 2 < \dots < J$. In a cumulative link model, the cumulative probabilities are linked to the linear predictor according to
 \begin{equation}
@@ -58,20 +68,64 @@ The problem with the LS residuals is that they are based on a discrete outcome a
 
 Proposed in \citet{residuals-liu-2017}.
 
+If the assumed model agrees with the true model, then the following hold:
+\begin{description}
+  \item[symmetry around zero] $E\left(R | \boldsymbol{X}\right) = 0$;
+  \item[homogeneity] $Var\left(R | \boldsymbol{X}\right)$ is constant and independent of $\boldsymbol{X}$;
+  \item[reference distribution] the emprical distribution of $R$ approximates an explicit distribution that is related to the link function.
+\end{description}
+These properties allow for a thorough examination of the residuals to check model adequacy and misspecification of the mean structure and link function.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Graphical properties}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Jittering}
 
-Coming soon!
+For the more general model, we can define a surrogate through a technique called \dfn{jittering}. We offer two approaches for defining a surrogate $S$:
+\begin{description}
+  \item[outcome scale] $\mathcal{S} | \mathcal{Y} = y \sim \mathcal{U}\left[y, y + 1\right]$;
+  \item[probability scale] $\mathcal{S} | \mathcal{Y} = y \sim \mathcal{U}\left[F_a\left(y - 1\right), F_a\left(y\right)\right]$.
+\end{description}
+Then, we can define a residual by
+\begin{equation*}
+R = S - E\left(S|\boldsymbol{X}\right).
+\end{equation*}
 
+For the case of binary regression, all we need are the fitted probabilities $G^{-1}\left(\boldsymbol{X}\boldsymbol{\beta}\right)$ and the ability to simiulate from the uniform distribution. For example, if \code{fit.glm} is a \code{"glm"} object with the \code{binomial} family, and \code{y} is an integer representing the binary outcome in $\left\{0, 1\right\}$, then the residuals from method (2) can be constructed as follows:
+\begin{example}
+p1 <- pbinom(y - 1, size = 1, prob = fit.glm$fitted)  # F(y-1)
+p2 <- pbinom(y, size = 1, prob = object$fitted)       # F(y)
+runif(length(y), min = p1, max = p2) - 0.5            # S - E(S|X)
+\end{example}
+
+If the assumed model agrees with the true model, then the following hold:
+\begin{description}
+  \item[symmetry around zero] $E\left(R | \boldsymbol{X}\right) = 0$;
+  \item[reference distribution] for method (2) the $R|\boldsymbol{X} \sim \mathcal{U}\left[-1/2, 1/2\right]$.
+\end{description}
+Both methods have the zero mean property, but only method (2) allows for examinination of the full distributional information in the residual.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Residual-based OR diagnostics in R}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The \pkg{ordr} package currently only exports three functions:
+\begin{table}[!htbp]
+  \begin{tabular}{llll}
+    \toprule
+      Package & Function(s) & Model & Parameterization \\
+      \midrule
+      \pkg{stats}   & \code{glm}  & binary regression   & NA \\
+      \pkg{MASS}    & \code{polr} & cumulative link     & $Pr\left\{\mathcal{Y} \le j\right\}$ \\
+      \pkg{rms}     & \code{lrm}  & cumulative link     & $Pr\left\{\mathcal{Y} \ge j\right\}$ \\
+                    & \code{lrm}  & logistic regression & NA \\
+                    & \code{orm}  & cumulative link     & $Pr\left\{\mathcal{Y} \ge j\right\}$ \\
+      \pkg{ordinal} & \code{clm}  & cumulative link     & $Pr\left\{\mathcal{Y} \le j\right\}$ \\
+      \pkg{VGAM}    & \code{vglm} & cumulative link     & $Pr\left\{\mathcal{Y} \le j\right\}$\footnote{This is the default parameterization used by \code{vglm}. This can be reversed by setting \code{reverse = TRUE}.} \\
+      \bottomrule
+  \end{tabular}
+  \caption{Supported packages.}
+  \label{tab:pkgs}
+\end{table}
+
+The \pkg{sure} package currently only exports three functions:
 \begin{itemize}
   \item \code{resids}---construct (surrogate-based) residuals for fitted model objects of class \code{"clm"}, \code{"polr"}, and \code{"vglm"};
   \item \code{autoplot}---produce various diagnostic plots using \CRANpkg{ggplot2} graphics \citep{pkg-ggplot2};
@@ -84,10 +138,10 @@ For illustration, the data frame \code{df1} contains $n = 2000$ observations fro
 \label{eqn:quadratic}
   Pr\left\{\mathcal{Y} \le j\right\} = \Phi\left(\alpha_j + \beta_1 X + \beta_2 X ^ 2\right), \quad j = 1, 2, 3, 4,
 \end{equation}
-where $\alpha_1 = -16$, $\alpha_2 = -12$, $\alpha_3 = -8$, $\beta_1 = 8$, $\beta_2 = -1$, and $X \sim \mathcal{U}\left(1, 7\right)$. These simulated data are available in the \code{df.quadratic} data frame from the \pkg{ordr} package. Below, we fit a (correctly specified) probit model using the \code{polr} function from the \pkg{MASS} package.
+where $\alpha_1 = -16$, $\alpha_2 = -12$, $\alpha_3 = -8$, $\beta_1 = 8$, $\beta_2 = -1$, and $X \sim \mathcal{U}\left(1, 7\right)$. These simulated data are available in the \code{df.quadratic} data frame from the \pkg{sure} package. Below, we fit a (correctly specified) probit model using the \code{polr} function from the \pkg{MASS} package.
 \begin{example}
 library(MASS)
-data(df1, package = "ordr")  # load the data
+data(df1, package = "sure")  # load the data
 head(df1)  # inspect the first 6 rows
 fit.polr <- polr(y ~ x + I(x ^ 2), data = df1, method = "probit")
 \end{example}
@@ -99,10 +153,10 @@ pres <- presid(fit.polr)  # probability-scale residuals
 \end{example}
 A couple diagnostic plots based on these residuals are shown in the bottom row of \ref{fig:correct-model}. (\strong{Note:} the reference distribution for the probability-based residual is the $\mathcal{U}\left(-1, 1\right)$ distribution.) As can be seen, these residuals, which are inherently discrete, often display unusual patterns in diagnostic plots, making them less useful as a diagnostic tool for ordinal regression models.
 
-Similarly, we can use the \code{resids} function in package \pkg{ordr} to obtain the surrogate-based residuals. This is illustarted in the following code chunk. the results are displayed in the top row of Figure~\ref{fig:correct-model}.
+Similarly, we can use the \code{resids} function in package \pkg{sure} to obtain the surrogate-based residuals. This is illustarted in the following code chunk. the results are displayed in the top row of Figure~\ref{fig:correct-model}.
 \begin{example}
 library(ggplot2)  # for autoplot function
-library(ordr)
+library(sure)
 sres <- resids(fit.polr)
 
 # Residual vs covariate and Q-Q plots using the surrogate residuals
@@ -170,7 +224,7 @@ The following block of code uses the \pkg{MASS} package function \code{polr} to 
 \begin{example}
 library(ggplot2)
 library(MASS)
-library(ordr)
+library(sure)
 fit.polr <- polr(y ~ x, data = df2, method = "probit")
 set.seed(101)  # for reproducibility
 sres <- resids(fit.polr)  # surrogate-based residuals
@@ -215,7 +269,7 @@ In this case, it is less clear that there is an issue with constant variance fro
 For this example, we simulated $n = 2000$ observations from the quadratic model, but using a $\log$-$\log$ link.
 
 \begin{example}
-data(df3, package = "ordr")
+data(df3, package = "sure")
 fit.probit <- polr(y ~ x + I(x ^ 2), data = df3, method = "probit")
 fit.logistic <- polr(y ~ x + I(x ^ 2), data = df3, method = "logistic")
 fit.loglog <- polr(y ~ x + I(x ^ 2), data = df3, method = "loglog")  # correct link
