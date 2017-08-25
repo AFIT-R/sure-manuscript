@@ -1,5 +1,5 @@
 % !TeX root = RJwrapper.tex
-\title{Residuals and Diagnostics for Ordinal Regression Models" An Introduction to the sure package}
+\title{Residuals and Diagnostics for Ordinal Regression Models: An Introduction to the sure package}
 \author{by Brandon Greenwell, Andrew McCarthy, Bradley Boehmke and Dungang Liu}
 
 \maketitle
@@ -97,7 +97,7 @@ These properties allow for a thorough examination of the residuals to check mode
 \subsection{Jittering for general models}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The latent method discussed in Section~\ref{sec:surrogate} applies to cumulative link models for ordinal outcomes. For more general models, we can define a surrogate using a technique called \dfn{jittering}. Suppose the true model for a categorical outcome $\mathcal{Y}$
+The latent method discussed in Section~\ref{sec:surrogate} applies to cumulative link models for ordinal outcomes. For more general models, we can define a surrogate using a technique called \dfn{jittering}. Suppose the true model for an ordinal outcome $\mathcal{Y}$
 \begin{equation}
   \mathcal{Y} \sim F_a\left(y; \boldsymbol{X}, \boldsymbol{\beta}\right),
 \end{equation}
@@ -295,7 +295,7 @@ p2 <- ggplot(data.frame(x = df2$x, y = presid(fit.orm)), aes(x, y)) +
 grid.arrange(p1, p2, ncol = 2)
 \end{example}
 
- In this case, it is less clear that there is an issue with constant variance from the probability-scale residual plot...
+In Figure~\ref{fig:heteroscedasticity}, it is clear from the plot of the surrogate residuals (left side of Figure~\ref{fig:heteroscedasticity}) that the variance increases with $X$, a clear sign of heteroscedasticity. As a matter fact, the plot suggests that the true link function has a varying scale parameter, $\sigma = \sigma\left(\boldsymbol{X}\right)$. The plot of the SBS residuals (right side of Figure~\ref{fig:heteroscedasticity}), on the other hand, gives no indication of an issue with nonconstant variance.
 
 \begin{figure}[!htbp]
   \centering
