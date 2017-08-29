@@ -92,6 +92,53 @@ dev.off()
 
 
 ################################################################################
+# Checking the proportionality assumption
+################################################################################
+
+# Fit separate models to the df4 data set and genrate the difference in 
+# surrogate values
+library(VGAM)
+fit1 <- vglm(y ~ x, data = df4[1:2000, ], 
+             cumulative(link = probit, parallel = TRUE))
+fit2 <- update(fit1, data = df4[2001:4000, ])
+s1 <- surrogate(fit1)
+s2 <- surrogate(fit2)
+d <- data.frame(D = s1 - s2, X = df4[1:2000, ]$x)
+
+# Scatterplot of D vs. X
+p <- ggplot(d, aes(x = X, y = D)) +
+  geom_point() +
+  geom_smooth(col = "red", se = FALSE)
+
+# Figure ?
+pdf(file = "proportionality.pdf", width = 7, height = 5)
+print(p)
+dev.off()
+
+
+################################################################################
+# Detecting a misspecified link function
+################################################################################
+
+# Fit models with various link functions to the simulated data
+fit.probit <- polr(y ~ x + I(x ^ 2), data = df3, method = "probit")
+fit.logistic <- polr(y ~ x + I(x ^ 2), data = df3, method = "logistic")
+fit.loglog <- polr(y ~ x + I(x ^ 2), data = df3, method = "loglog")  # correct link
+fit.cloglog <- polr(y ~ x + I(x ^ 2), data = df3, method = "cloglog")
+
+# Construc Q-Q plots of the surrogate residuals for each model
+p1 <- autoplot(fit.probit, nsim = 100, what = "qq")
+p2 <- autoplot(fit.logistic, nsim = 100, what = "qq")
+p3 <- autoplot(fit.loglog, nsim = 100, what = "qq")
+p4 <-  autoplot(fit.cloglog, nsim = 100, what = "qq")
+
+# Figure ?
+pdf(file = "link.pdf", width = 7, height = 7)
+grid.arrange(p1, p2, p3, p4, ncol = 2)  # bottom left plot is correct model
+dev.off()
+
+
+################################################################################
 # Quality of wine
 ################################################################################
 
