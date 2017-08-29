@@ -1,6 +1,6 @@
 % !TeX root = RJwrapper.tex
 \title{Residuals and Diagnostics for Ordinal Regression Models: An Introduction to the sure package}
-\author{by Brandon Greenwell, Andrew McCarthy, Bradley Boehmke and Dungang Liu}
+\author{by Brandon M. Greenwell, Andrew J. McCarthy, Bradley C. Boehmke, and Dungang Liu}
 
 \maketitle
 
@@ -35,7 +35,7 @@ where $G$ is a continuous cumulative distribution function, $\alpha_j$ are the c
 \label{eqn:clm2}
   G^{-1}\left(\Pr\left\{\mathcal{Y} \ge j\right\}\right) = \alpha_j^\star + f\left(\boldsymbol{X}, \boldsymbol{\beta}^\star\right),
 \end{equation}
-This formulation provides coefficients that are consitent with the ordinary logistic regression model. The estimated coefficients from model~\eqref{eqn:clm2} will have the opposite sign as those in model~\eqref{eqn:clm}.
+This formulation provides coefficients that are consistent with the ordinary logistic regression model. The estimated coefficients from model~\eqref{eqn:clm2} will have the opposite sign as those in model~\eqref{eqn:clm}.
 
 Another way to interpret the cumulative link model is through a \dfn{latent} continuous random variable $\mathcal{Z} = -f\left(\boldsymbol{X}, \boldsymbol{\beta}\right) + \epsilon$, where $\epsilon$ is a continuous random variable with location parameter $0$, scale parameter $1$, and cumulative distribution function $G\left(\cdot\right)$. We then construct an ordered factor according to the rule
 \begin{equation*}
@@ -45,7 +45,7 @@ For $\epsilon \sim N\left(0, 1\right)$, this leads to the usual probit model for
 \begin{equation*}
   \Pr\left\{\mathcal{Y} \le j\right\} = \Pr\left\{\mathcal{Z} \le \alpha_j\right\} = \Pr\left\{-f\left(\boldsymbol{X}, \boldsymbol{\beta}\right) + \epsilon \le \alpha_j\right\} = \Phi\left(\alpha_j + f\left(\boldsymbol{X}, \boldsymbol{\beta}\right)\right).
 \end{equation*}
-Common choices for the link function and the implied (standard) distribution for $\epsilon$ are described in Table~\ref{tab:common}.
+Common choices for the link function $G^{-1}\left(\cdot\right)$ and the implied (standard) distribution for $\epsilon$ are described in Table~\ref{tab:common}.
 \begin{table}[!htbp]
   \begin{tabular}{llll}
     \toprule
@@ -62,9 +62,9 @@ Common choices for the link function and the implied (standard) distribution for
   \label{tab:common}
 \end{table}
 
-There a number of R packages that can be used to fit cumulative link models \eqref{eqn:clm}. The recommended package \CRANpkg{MASS} \citep{pkg-MASS} has the function \code{polr} (proportional odds logistic regression) which, despite the name, can be used with all of the above link functions. The \CRANpkg{VGAM} package \citep{pkg-VGAM} has the \code{vglm} function for fitting vector generalized linear models, which includes the broad class of cumulative link models. By default, \code{vglm} uses the same parameterization as in Equation~ \eqref{eqn:clm}, but provides the option for fitting \eqref{eqn:clm2} instead; this will result in the estimated coefficients having the opposite sign. Package \CRANpkg{ordinal} \citep{pkg-ordinal} has the \code{clm} function for fitting cumulative link models. The popular \CRANpkg{rms} package \citep{pkg-rms} has two functions: \code{lrm} for fitting logistic regression models and cumulative link models of the form \eqref{eqn:clm2} using the logit link, and \code{orm} for fitting ordinal regression models of the form \eqref{eqn:clm2}.
+There a number of R packages that can be used to fit cumulative link models \eqref{eqn:clm} and \eqref{eqn:clm2}. The recommended package \CRANpkg{MASS} \citep{pkg-MASS} has the function \code{polr} (proportional odds logistic regression) which, despite the name, can be used with all of the link functions described in Table~\ref{tab:common}. The \CRANpkg{VGAM} package \citep{pkg-VGAM} has the \code{vglm} function for fitting vector generalized linear models, which includes the broad class of cumulative link models. By default, \code{vglm} uses the same parameterization as in Equation~\eqref{eqn:clm}, but provides the option for using the parameterization seen in Equation~\eqref{eqn:clm2} as well; this will result in the estimated coefficients having the opposite sign. Package \CRANpkg{ordinal} \citep{pkg-ordinal} has the \code{clm} function for fitting cumulative link models. The popular \CRANpkg{rms} package \citep{pkg-rms} has two functions: \code{lrm} for fitting logistic regression and cumulative link models using the logit link, and \code{orm} for fitting ordinal regression models. Both of these function use the parameterization seen in Equation~\eqref{eqn:clm2}.
 
-For a continuous outcome $\mathcal{Y}$, the residual is traditionally defined as the difference between the observed and fitted values. For categorical outcomes, the residuals are more difficult to define, and few solutions have been proposed in the literature. \citet{graphical-liu-2009} proposed using the cumulative sums of residuals derived from collapsing the ordered categories into multiple binary outcomes. Unfortunately, this method leads to multiple residuals for the ordinal outcome and therefore difficult to interpret. \citet{residuals-li-2012} showed that the sign-based statistic (SBS)
+For a continuous outcome $\mathcal{Y}$, the residual is traditionally defined as the difference between the observed and fitted values. For ordinal outcomes, the residuals are more difficult to define, and few definitions have been proposed in the literature. \citet{graphical-liu-2009} proposed using the cumulative sums of residuals derived from collapsing the ordered categories into multiple binary outcomes. Unfortunately, this method leads to multiple residuals for the ordinal outcome and therefore difficult to interpret. \citet{residuals-li-2012} showed that the sign-based statistic (SBS)
 \begin{equation}
 \label{eqn:pres}
   R_{SBS} = E\left\{sign\left(y - \mathcal{Y}\right)\right\} = Pr\left\{y > \mathcal{Y}\right\} - Pr\left\{y < \mathcal{Y}\right\},
@@ -77,18 +77,18 @@ can be used as a residual for proportional odds regression models; these are ref
 \label{sec:surrogate}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\citet{residuals-liu-2017} propose a new type of residual that is based on a continuous variable $\mathcal{S}$ that acts as a surrogate for the ordinaly outcome $\mathcal{Y}$.
+\citet{residuals-liu-2017} propose a new type of residual that is based on a continuous variable $S$ that acts as a surrogate for the ordinal outcome $\mathcal{Y}$. This surrogate residual is defined as
 \begin{equation}
 \label{eqn:sure}
-R_\mathcal{S} = \mathcal{S} - E\left(\mathcal{S} | \boldsymbol{X}\right).
+R_S = S - E\left(S | \boldsymbol{X}\right),
 \end{equation}
-The benefit of the surrogate-based residual \eqref{eqn:sure} is that is based on a continuous variable $\mathcal{S}$. As a consequence $R_S$ will also be continuous. The continuous variable $\mathcal{S}$ is based on the conditional distribution of the latent variable $\mathcal{Z}$ given $\mathcal{Y}$. In particular, given $\mathcal{Y} = y$, \citet{residuals-liu-2017} show that $\mathcal{S}$ follows a trunacted distribution obtained by truncating the distribution of $\mathcal{Z} = -f\left(\boldsymbol{X}, \boldsymbol{\beta}\right) + \epsilon$ using the interval $\left(\alpha_{y - 1}, \alpha_y\right)$.
+where $S$ is a continuous variable based on the conditional distribution of the latent variable $\mathcal{Z}$ given $\mathcal{Y}$. In particular, given $\mathcal{Y} = y$, \citet{residuals-liu-2017} show that $S$ follows a truncated distribution obtained by truncating the distribution of $\mathcal{Z} = -f\left(\boldsymbol{X}, \boldsymbol{\beta}\right) + \epsilon$ using the interval $\left(\alpha_{y - 1}, \alpha_y\right)$. The benefit of the surrogate-based residual \eqref{eqn:sure} is that it is based on a continuous variable $S$, hence, $R_S$ is also continuous. 
 
-If the assumed model agrees with the true model, then the following hold:
+Furthermore, it can be shown \citep{residuals-liu-2017} that if the hypothesized model agrees with the true model, then $R_S$ will have the following properties:
 \begin{description}
-  \item[symmetry around zero] $E\left(R_\mathcal{S} | \boldsymbol{X}\right) = 0$;
-  \item[homogeneity] $Var\left(R_\mathcal{S} | \boldsymbol{X}\right)$ is constant and independent of $\boldsymbol{X}$;
-  \item[reference distribution] the empirical distribution of $R_\mathcal{S}$ approximates an explicit distribution that is related to the link function.
+  \item[symmetry around zero] $E\left(R_S | \boldsymbol{X}\right) = 0$;
+  \item[homogeneity] $Var\left(R_S | \boldsymbol{X}\right) = c$, a constant that is independent of $\boldsymbol{X}$;
+  \item[reference distribution] the empirical distribution of $R_S$ approximates an explicit distribution that is related to the link function $G^{-1}\left(\cdot\right)$.
 \end{description}
 These properties allow for a thorough examination of the residuals to check model adequacy and misspecification of the mean structure and link function.
 
@@ -101,15 +101,15 @@ The latent method discussed in Section~\ref{sec:surrogate} applies to cumulative
 \begin{equation}
   \mathcal{Y} \sim F_a\left(y; \boldsymbol{X}, \boldsymbol{\beta}\right),
 \end{equation}
-where $F\left(\cdot\right)$ is a discrete cumulative distribution function. This model is general enough to cover the cumulative link model \eqref{eqn:clm}, and nearly any pararmetric or nonparametric model for categorical outcomes (e.g., logistic regression).
+where $F\left(\cdot\right)$ is a discrete cumulative distribution function. This model is general enough to cover the cumulative link models \eqref{eqn:clm} and \eqref{eqn:clm2}, and nearly any parametric or nonparametric model for ordinal outcomes.
 
-\citet{residuals-liu-2017} suggest defining the surrogate $\mathcal{S}$ using either of the following two approaches:
+\citet{residuals-liu-2017} suggest defining the surrogate $S$ using either of the following two approaches:
 \begin{enumerate}
-  \item jittering on the outcome scale: $\mathcal{S} | \mathcal{Y} = y \sim \mathcal{U}\left[y, y + 1\right]$;
-  \item jittering on the probability scale: $\mathcal{S} | \mathcal{Y} = y \sim \mathcal{U}\left[F_a\left(y - 1\right), F_a\left(y\right)\right]$.
+  \item jittering on the outcome scale: $S | \mathcal{Y} = y \sim \mathcal{U}\left[y, y + 1\right]$;
+  \item jittering on the probability scale: $S | \mathcal{Y} = y \sim \mathcal{U}\left[F_a\left(y - 1\right), F_a\left(y\right)\right]$.
 \end{enumerate}
-Once a surrogate is obtained, we define the surrogate residuals in the same way as Equation~\ref{eqn:sure}.
-In either case, if the hypothesized model is correct, then symmetry around zero still holds; that is $E\left(R_\mathcal{S} | \boldsymbol{X}\right) = 0$. For the later case, if the hypothesized model is correct then $R_\mathcal{S} | \boldsymbol{X} \sim \mathcal{U}\left(-1/2, 1/2\right)$. In other words, jittering on the probability scale has the additional property that the conditional ditribution of $R_\mathcal{S}$ given $\boldsymbol{X}$ has an explicit form. This allows for a full examination of the distributional information of the residual.
+Once a surrogate is obtained, we define the surrogate residuals in the same way as Equation~\eqref{eqn:sure}.
+In either case, if the hypothesized model is correct, then symmetry around zero still holds; that is $E\left(R_S | \boldsymbol{X}\right) = 0$. For the later case, if the hypothesized model is correct then $R_S | \boldsymbol{X} \sim \mathcal{U}\left(-1/2, 1/2\right)$. In other words, jittering on the probability scale has the additional property that the conditional distribution of $R_S$ given $\boldsymbol{X}$ has an explicit form. This allows for a full examination of the distributional information of the residual.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -118,20 +118,20 @@ In either case, if the hypothesized model is correct, then symmetry around zero 
 
 Since surrogate residuals are based on sampling, additional error is introduced. One way to minimize this sampling error and help stabilize any patterns in diagnostic plots is to use the bootstrap \citep{efron-another-1979}.
 
-The procedure for bootstrapping surrogate residuals is similar to the model-based bootstrap algorithm used in linear regression. To obtain the $b$-th boostrap replicate of the residuals, \citet{residuals-liu-2017} suggest the following algorithm:
+The procedure for bootstrapping surrogate residuals is similar to the model-based bootstrap algorithm used in linear regression. To obtain the $b$-th bootstrap replicate of the residuals, \citet{residuals-liu-2017} suggest the following algorithm:
 \begin{description}
   \item[Step 1] Perform a standard case-wise bootstrap of the original data to obtain the bootstrap sample $\left\{\left(\boldsymbol{X}_{1b}^\star, \mathcal{Y}_{1b}^\star\right), \dots, \left(\boldsymbol{X}_{ nk}^\star, \mathcal{Y}_{nk}^\star\right)\right\}$.
-  \item[Step 2] Using the procedure outlined in the previous section, obtain a sample of surrogate residuals $R_{\mathcal{S}_{1b}}^\star, \dots, R_{\mathcal{S}_{nb}}^\star$ using the bootstrapped data obtained in \textbf{Step 2}.
+  \item[Step 2] Using the procedure outlined in the previous section, obtain a sample of surrogate residuals $R_{S_{1b}}^\star, \dots, R_{S_{nb}}^\star$ using the bootstrapped data obtained in \textbf{Step 2}.
 \end{description}
 
-In diagnostic plots, ... For Q-Q plots, \citet{residuals-liu-2017} suggest using the median of the $B$ empirical distributions.
+This procedure is repeated a total of $B$ times. For residual vs. covariate (i.e., $R$ vs. $X$) plots and residual vs. fitted value (i.e., $R$ vs. $f\left(\boldsymbol{X}, \boldsymbol{\beta}\right)$) plots, we simply scatter all $B \times n$ residuals on the same plot. For large data sets, we find it useful to also lower the opacity of the data points to help alleviate any issues with over plotting. This approach is valid since the bootstrap samples are drawn independently from each other. For Q-Q plots, on the other hand, \citet{residuals-liu-2017} suggest using the median of the $B$ bootstrap distributions which is the implementation used in the \pkg{sure} package.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Surrogate-based residuals in R}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The \pkg{sure} package supports a variety of R packages for fitting cumulative link and other types of models. The supported packages and their corresponding functions are described in Table~\ref{tab:pkgs}.
+The \CRANpkg{sure} package \citep{pkg-sure} supports a variety of R packages for fitting cumulative link and other types of models. The supported packages and their corresponding functions are described in Table~\ref{tab:pkgs}.
 \begin{table}[!htbp]
   \begin{tabular}{llll}
     \toprule
@@ -150,9 +150,10 @@ The \pkg{sure} package supports a variety of R packages for fitting cumulative l
   \label{tab:pkgs}
 \end{table}
 
-The \pkg{sure} package currently only exports three functions:
+The \pkg{sure} package currently only exports four functions:
 \begin{itemize}
-  \item \code{resids}---construct (surrogate-based) residuals for fitted model objects of class \code{"clm"}, \code{"polr"}, and \code{"vglm"};
+  \item \code{resids}---for constructing surrogate residuals;
+  \item \code{surrogate}---for generating the surrogate response values used in the residuals;
   \item \code{autoplot}---produce various diagnostic plots using \CRANpkg{ggplot2} graphics \citep{pkg-ggplot2};
  \item \code{gof}---simulate p-values from a goodness-of-fit test.
 \end{itemize}
@@ -182,7 +183,7 @@ The code chunk below obtains the SBS residuals \eqref{eqn:pres} from the previou
 # Load required package(s)
 library(PResiduals)
 
-# Obtain the SBS/probability-scale residusls
+# Obtain the SBS/probability-scale residuals
 pres <- presid(fit.polr)
 
 # Residual vs. covariate plot
@@ -208,7 +209,7 @@ grid.arrange(p1, p2, ncol = 2)
   \label{fig:quadratic-correct-sbs}
 \end{figure}
 
-Similarly, we can use the \code{resids} function in package \pkg{sure} to obtain the surrogate-based residuals discussed in Section~\ref{sec:surrogate}. This is illusratted in the following code chunk. the results are displayed in Figure~\ref{fig:quadratic-correct-surrogate}.
+Similarly, we can use the \code{resids} function in package \pkg{sure} to obtain the surrogate-based residuals discussed in Section~\ref{sec:surrogate}. This is illustrated in the following code chunk. the results are displayed in Figure~\ref{fig:quadratic-correct-surrogate}.
 \begin{example}
 # Load required package(s)
 library(ggplot2)
@@ -222,7 +223,7 @@ sres <- resids(fit.polr)
 p1 <- autoplot(sres, what = "covariate", x = df1$x, xlab = "x")
 
 # Q-Q plot of the residuals
-p2 <- autoplot(sres, what = "qq", distirbution = pnorm)
+p2 <- autoplot(sres, what = "qq", distribution = pnorm)
 
 # Figure ?
 grid.arrange(p1, p2, ncol = 2)
@@ -234,7 +235,7 @@ grid.arrange(p1, p2, ncol = 2)
   \label{fig:quadratic-correct-surrogate}
 \end{figure}
 
-We also wrote \code{autoplot} methods for various classes of models listed in Table~\ref{tab:pkgs}, so you can just give \code{autoplot} the fitted model directly. The benefit of this approach is that the fitted values and reference distirbution (used in quantile-quantile plots) are automatically extracted. For example, to reproduce the Q-Q plot in Figure~\ref{fig:quadratic-correct-surrogate}, we could have just used
+We also wrote \code{autoplot} methods for various classes of models listed in Table~\ref{tab:pkgs}, so you can just give \code{autoplot} the fitted model directly. The benefit of this approach is that the fitted values and reference distirbution (used in Q-Q plots) are automatically extracted. For example, to reproduce the Q-Q plot in Figure~\ref{fig:quadratic-correct-surrogate}, we could have just used
 \begin{example}
 set.seed(101)  # for reproducibility
 autoplot(fit.polr, what = "qq")  # same as top right of Figure 1
@@ -244,7 +245,7 @@ Suppose that we did not include the quadratic term in our fitted model. We could
 \begin{example}
 fit.polr <- update(fit.polr, y ~ x)  # remove quadratic term
 \end{example}
-The SBS residuals gives some indication of a misspecified mean structure, but this only becomes more clear with increasing $J$, and the plot is still discrete. This is overcome by the surrogate residuals which produces a residual plot not unlike those seen in ordinary linear regresion models.
+The SBS residuals gives some indication of a misspecified mean structure, but this only becomes more clear with increasing $J$, and the plot is still discrete. This is overcome by the surrogate residuals which produces a residual plot not unlike those seen in ordinary linear regression models.
 
 \begin{figure}[!htbp]
   \centering
@@ -258,9 +259,9 @@ The SBS residuals gives some indication of a misspecified mean structure, but th
 \subsection{Detecting heteroscedasticty}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-One issue that oftens raises concerns in  stataistical inference is that of heteroscedasticity; that is, when the error term has non constant variance. Heteroscedasticity can bias the statistical infeence and lead to improper standard errors, confidence intervals, and $p$-values. Therefore, it is imperative to identify heteroscedacticity whenever present and take appropriate action (e.g., transformations, etc.). In ordinary linear regression, this topic has been covered extensively. For categorical models, on the other hand, not much has been proposed in the literature.
+One issue that often raises concerns in  statistical inference is that of heteroscedasticity; that is, when the error term has non constant variance. Heteroscedasticity can bias the statistical inference and lead to improper standard errors, confidence intervals, and $p$-values. Therefore, it is imperative to identify heteroscedacticity whenever present and take appropriate action (e.g., transformations, etc.). In ordinary linear regression, this topic has been covered extensively. For categorical models, on the other hand, not much has been proposed in the literature.
 
-As discussed in Section~\ref{sec:surrogate}, one of the properties of the surrogate-based residual $R_\mathcal{S}$ is that, if the model is specified correctly, then $Var\left(R_\mathcal{S} | X\right) = c$, where $c$ is a contant.
+As discussed in Section~\ref{sec:surrogate}, one of the properties of the surrogate-based residual $R_S$ is that, if the model is specified correctly, then $Var\left(R_S | X\right) = c$, where $c$ is a constant.
 
 For this example, we generated $n = 2000$ observations from the following ordered probit model:
 \begin{equation*}
@@ -315,7 +316,7 @@ For this example, we simulated $n = 2000$ observations from the following model
 \end{equation*}
 where $G\left(\cdot\right)$ is the cumulative distribution function for the gumbel distribution. The data are available in the data frame \code{df3} available with the package; see \code{?df3} for details.
 
-below we fit a model with various link functions. For this model, however, the correct link function to use is the log-log link. From these models, weconstruct Q-Q plots of the residuals using $R = 100$ bootstrap replicates. The results are displayed in Figure~\ref{fig:link}.
+below we fit a model with various link functions. For this model, however, the correct link function to use is the log-log link. From these models, we construct Q-Q plots of the residuals using $R = 100$ bootstrap replicates. The results are displayed in Figure~\ref{fig:link}.
 \begin{example}
 # Fit models with various link functions to the simulated data
 fit.probit <- polr(y ~ x + I(x ^ 2), data = df3, method = "probit")
@@ -323,7 +324,7 @@ fit.logistic <- polr(y ~ x + I(x ^ 2), data = df3, method = "logistic")
 fit.loglog <- polr(y ~ x + I(x ^ 2), data = df3, method = "loglog")  # correct link
 fit.cloglog <- polr(y ~ x + I(x ^ 2), data = df3, method = "cloglog")
 
-# Construc Q-Q plots of the surrogate residuals for each model
+# Construct Q-Q plots of the surrogate residuals for each model
 p1 <- autoplot(fit.probit, nsim = 100, what = "qq")
 p2 <- autoplot(fit.logistic, nsim = 100, what = "qq")
 p3 <- autoplot(fit.loglog, nsim = 100, what = "qq")
@@ -332,11 +333,11 @@ p4 <-  autoplot(fit.cloglog, nsim = 100, what = "qq")
 # Figure ?
 grid.arrange(p1, p2, p3, p4, ncol = 2)  # bottom left plot is correct model
 \end{example}
-From the Q-Q plots in Figure~\ref{fig:link} it is clear the the model with the log-log link (which corresponds to gumber errors in the latent variable formulation) is the most appropriate, while the other plots indicate deviations from the hypothesized model.
+From the Q-Q plots in Figure~\ref{fig:link}, it is clear the the model with the log-log link (which corresponds to gumbel errors in the latent variable formulation) is the most appropriate, while the other plots indicate deviations from the hypothesized model.
 
 \begin{figure}[!htbp]
   \centering
-  \includegraphics[width=1\textwidth]{link}
+  \includegraphics[width=0.7\textwidth]{link}
   \caption{Q-Q plots of the residuals for various cumulative link models fit to simulated data with gumbel errors. \textit{Top left}: A model with probit link. \textit{Top right}: A model with logit link. \textit{Bottom left}: A model with log-log link (i.e., the correct model). \textit{Top left}: A model with complimentary log-log link.}  
   \label{fig:link}
 \end{figure}
@@ -348,15 +349,15 @@ From the Q-Q plots in Figure~\ref{fig:link} it is clear the the model with the l
 \subsection{Checking the proportionality assumption}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-An important feature of the cumulative link model \eqref{eqn:clm} is the proportional odds assumption, which assumes that mean structure $f\left(\boldsymbol{X}, \boldsymbol{\beta}\right)$, remain the same for each of the $J$ categories. \citet[pp. 334--335]{regression-harrell-2001} suggests computing each observation's contribution to the first derivative of the log likelihood function with respect to $\boldsymbol{\beta}$, average them within each of the $J$ categories, and examine any trends in the residual plots, but these plots can be difficult to intepret. FOrtunately, it is relatively straight forward to use the simulated surrogate response values $\mathcal{S}$ to check the proportionality assumption.
+An important feature of the cumulative link model \eqref{eqn:clm} is the proportional odds assumption, which assumes that mean structure, $f\left(\boldsymbol{X}, \boldsymbol{\beta}\right)$, remains the same for each of the $J$ categories; for the logit case (see row one of Table~\ref{tab:common}), this is also referred to as the proportional odds assumption. \citet[pp. 334--335]{regression-harrell-2001} suggests computing each observation's contribution to the first derivative of the log likelihood function with respect to $\boldsymbol{\beta}$, average them within each of the $J$ categories, and examine any trends in the residual plots, but these plots can be difficult to interpret. Fortunately, it is relatively straight forward to use the simulated surrogate response values $S$ to check the proportionality assumption.
 
 To illustrate, we generated 2000 observations from each of the following two probit models
 \begin{equation*}
-  Pr\left(\mathcal{Y} \le j\right) = \Phi\left(\alpha_j + \beta_1 X\right) \quad and \quad Pr\left(\mathcal{Y} \le j\right) = \Phi\left(\alpha_j + \beta_2 X\right), \quad j = 1, 2, 3,
+  Pr\left(\mathcal{Y} \le j\right) = \Phi\left(\alpha_j + \beta_1 X\right), \quad j = 1, 2, 3, \quad \textrm{and} \quad Pr\left(\mathcal{Y} \le j\right) = \Phi\left(\alpha_j + \beta_2 X\right), \quad j = 4, 5,
 \end{equation*}
 where $\alpha_1 = -1.5$, $\alpha_2 = 0$, $\alpha_3 = 1$, $\alpha_4 = 3$, $\beta_1 = 1$, and $\beta_2 = 1.5$. The data are available in the data frame \code{df4} included with the package; see \code{?df4} for details. 
 
-Checking the proportionality assumption here amounts to checking whether or not $\beta_1 - \beta_2 = 0$. As outlined in \citet{residuals-liu-2017}, we can generate surrogates $\mathcal{S}_1 \sim \mathcal{N}\left(-\beta_1 X, 1\right)$ and $\mathcal{S}_s \sim \mathcal{N}\left(-\beta_2 X, 1\right)$, both condional on $X$. We then define the difference $D = S_2 - S_1$ which, conditional on $X$, follows a $\mathcal{N}\left(\left(\beta_1 - \beta_2\right) X, 1\right)$ distribution. If $\beta_1 - \beta_2 = 0$, then $D$ should be independent of $X$. This can be easily checked by plotting $D$ against $X$. Below, we use the \code{surrogate} function to generate the surrogate response values directly (as opposed to the residuals) and generate the $D$ vs. $X$ plot shown in Figure~\ref{fig:proportionality}.
+Checking the proportionality assumption here amounts to checking whether or not $\beta_1 - \beta_2 = 0$. As outlined in \citet{residuals-liu-2017}, we can generate surrogates $S_1 \sim \mathcal{N}\left(-\beta_1 X, 1\right)$ and $S_s \sim \mathcal{N}\left(-\beta_2 X, 1\right)$, both conditional on $X$. We then define the difference $D = S_2 - S_1$ which, conditional on $X$, follows a $\mathcal{N}\left(\left(\beta_1 - \beta_2\right) X, 1\right)$ distribution. If $\beta_1 - \beta_2 = 0$, then $D$ should be independent of $X$. This can be easily checked by plotting $D$ against $X$. Below, we use the \code{surrogate} function to generate the surrogate response values directly (as opposed to the residuals) and generate the $D$ vs. $X$ plot shown in Figure~\ref{fig:proportionality}.
 \begin{example}
 library(VGAM)
 fit1 <- vglm(y ~ x, data = df4[1:2000, ], 
@@ -373,7 +374,7 @@ From Figure~\ref{fig:proportionality}, it is clear that $\beta_1 - \beta_2 \ne 0
 
 \begin{figure}[!htbp]
   \centering
-  \includegraphics[width=1\textwidth]{proportionality}
+  \includegraphics[width=0.7\textwidth]{proportionality}
   \caption{Scatterplot of $D = S_1 - S_2$ vs. $X$. A nonparametric smooth is represented by the red curve.}
   \label{fig:proportionality}
 \end{figure}
@@ -413,7 +414,8 @@ From Figure~\ref{fig:proportionality}, it is clear that $\beta_1 - \beta_2 \ne 0
 \section{Summary}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-In this paper, we have introduced the \pkg{sure} package which implements the surrogate approach to residuals for ordinal regression models described in \citet{residuals-liu-2017}. Using simulated data sets, we have illustrated the various properties of these residuals and how they can be used to check various assumptions in the ordinal regression model (e.g., heteroscedasticity, misspecified link functions, etc.) using a continuous residuals which produces diagnostic plots not unlike those seen in ordinary linear regression. 
+In this paper, we have introduced the \pkg{sure} package which implements the surrogate approach to residuals for ordinal regression models described in \citet{residuals-liu-2017}. Using simulated data sets, we have illustrated the various properties of these residuals and how they can be used to check various assumptions in the ordinal regression model (e.g., heteroscedasticity, misspecified link functions, etc.) using a continuous residuals which produces diagnostic plots not unlike those seen in ordinary linear regression. This offers a new way of performing typical diagnostic checks for ordinal regression models that are easily interpreted by the analyst. Furthermore, this new approach to constructing residuals for ordinal regression models is still under active development and new functionality will be added to \pkg{sure} accordingly in the future.
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -423,25 +425,34 @@ In this paper, we have introduced the \pkg{sure} package which implements the su
 TBD.
 
 
-\bibliography{greenwell-lastname2-lastname3}
+\bibliography{greenwell-mccarthy-boehmke-liu}
 
-\address{Author One\\
-  Affiliation\\
-  Address\\
-  Country\\
-  (ORCiD if desired)\\
-  \email{author1@work}}
+\address{Brandon M. Greenwell\\
+  Illumination Works\\
+  6289 Commons Blvd\\
+  Suite 120\\
+  Beavercreek, OH 45431\\
+  United States of America\\
+  \email{greenwell.brandon@gmail.com}}
 
-\address{Author Two\\
-  Affiliation\\
-  Address\\
-  Country\\
-  (ORCiD if desired)\\
-  \email{author2@work}}
+\address{Andrew McCarthy\\
+  The Perduco Group\\
+  3610 Pentagon Blvd\\
+  Suite 110\\
+  Beavercreek, OH 45431\\
+  United States of America\\
+  \email{andymc82000@yahoo.com}}
 
-\address{Author Three\\
-  Affiliation\\
-  Address\\
-  Country\\
-  (ORCiD if desired)\\
-  \email{author3@work}}
+\address{Bradley C. Boehmke\\
+  Air Force Institute of Technology\\
+  2950 Hobson Way\\
+  Wright-Patterson AFB, OH 45433\\
+  United States of America\\
+  \email{bradleyboehmke@gmail.com}}
+  
+\address{Dungang Liu\\
+  University of Cincinnati Linden\\
+  2950 Hobson Way\\
+  Cincinnati, OH 45221\\
+  United States of America\\
+  \email{dungang.liu@uc.edu}}

@@ -97,7 +97,6 @@ dev.off()
 
 # Fit separate models to the df4 data set and genrate the difference in 
 # surrogate values
-library(VGAM)
 fit1 <- vglm(y ~ x, data = df4[1:2000, ], 
              cumulative(link = probit, parallel = TRUE))
 fit2 <- update(fit1, data = df4[2001:4000, ])
@@ -142,7 +141,6 @@ dev.off()
 # Quality of wine
 ################################################################################
 
-library(ordinal)
 data(wine, package = "ordinal")
 wine.clm <- clm(rating ~ temp * contact, data = wine)  # default logit link
 
