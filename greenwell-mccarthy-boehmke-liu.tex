@@ -5,7 +5,7 @@
 \maketitle
 
 \abstract{
-Residual diagnostics is an important topic in the classroom, but it is less often used in practice. Part of the reason for this is that more complex models, like cumulative link models and logistic regression, do not produce standard residuals that are easily interpreted as those in ordinary linear regression. In this paper, we introduce the concept of surrogate residuals and demonstrate there use through the R package \pkg{sure}.
+Residual diagnostics is an important topic in the classroom, but it is less often used in practice. Part of the reason for this is that more complex models, like cumulative link models and logistic regression, do not produce standard residuals that are easily interpreted as those in ordinary linear regression. In this paper, we introduce the concept of surrogate residuals and demonstrate their use through the R package \pkg{sure}.
 }
 
 
@@ -13,7 +13,7 @@ Residual diagnostics is an important topic in the classroom, but it is less ofte
 \section{Introduction}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Categorical outcomes are encountered frequently in practice across different fields. For example, in medical studies, the outcome of interest is often binary (e.g., presence or absence of a particular disease after applying a treatment). It is also not uncommon for a categorical outcome to have a natural ordering. For instance, in an opinion poll, the response may be satisfaction such as low, medium, and high. In this case, the response is ordered: low $<$ medium $<$ high.
+Categorical outcomes are encountered frequently in practice across different fields. For example, in medical studies, the outcome of interest is often binary (e.g., presence or absence of a particular disease after applying a treatment). It is also relatively common for a categorical outcome to have a natural ordering. For instance, in an opinion poll, the response may be satisfaction, with categories low, medium, and high. In this case, the response is ordered: low $<$ medium $<$ high.
 
 % Logistic and probit regression are popular choices for modelling a binary outcome. The surrogate approach to constructing residuals actually applies to a wide class of general models of the form 
 % \begin{equation*}
@@ -62,14 +62,14 @@ Common choices for the link function $G^{-1}\left(\cdot\right)$ and the implied 
   \label{tab:common}
 \end{table}
 
-There a number of R packages that can be used to fit cumulative link models \eqref{eqn:clm} and \eqref{eqn:clm2}. The recommended package \CRANpkg{MASS} \citep{pkg-MASS} has the function \code{polr} (proportional odds logistic regression) which, despite the name, can be used with all of the link functions described in Table~\ref{tab:common}. The \CRANpkg{VGAM} package \citep{pkg-VGAM} has the \code{vglm} function for fitting vector generalized linear models, which includes the broad class of cumulative link models. By default, \code{vglm} uses the same parameterization as in Equation~\eqref{eqn:clm}, but provides the option for using the parameterization seen in Equation~\eqref{eqn:clm2} as well; this will result in the estimated coefficients having the opposite sign. Package \CRANpkg{ordinal} \citep{pkg-ordinal} has the \code{clm} function for fitting cumulative link models. The popular \CRANpkg{rms} package \citep{pkg-rms} has two functions: \code{lrm} for fitting logistic regression and cumulative link models using the logit link, and \code{orm} for fitting ordinal regression models. Both of these function use the parameterization seen in Equation~\eqref{eqn:clm2}.
+There are a number of R packages that can be used to fit cumulative link models \eqref{eqn:clm} and \eqref{eqn:clm2}. The recommended package \CRANpkg{MASS} \citep{pkg-MASS} contains the function \code{polr} (proportional odds logistic regression) which, despite the name, can be used with all of the link functions described in Table~\ref{tab:common}. The \CRANpkg{VGAM} package \citep{pkg-VGAM} has the \code{vglm} function for fitting vector generalized linear models, which includes the broad class of cumulative link models. By default, \code{vglm} uses the same parameterization as in Equation~\eqref{eqn:clm}, but provides the option for using the parameterization seen in Equation~\eqref{eqn:clm2} as well; this will result in the estimated coefficients having the opposite sign. Package \CRANpkg{ordinal} \citep{pkg-ordinal} has the \code{clm} function for fitting cumulative link models. The popular \CRANpkg{rms} package \citep{pkg-rms} has two functions: \code{lrm} for fitting logistic regression and cumulative link models using the logit link, and \code{orm} for fitting ordinal regression models. Both of these functions use the parameterization seen in Equation~\eqref{eqn:clm2}.
 
-For a continuous outcome $\mathcal{Y}$, the residual is traditionally defined as the difference between the observed and fitted values. For ordinal outcomes, the residuals are more difficult to define, and few definitions have been proposed in the literature. \citet{graphical-liu-2009} proposed using the cumulative sums of residuals derived from collapsing the ordered categories into multiple binary outcomes. Unfortunately, this method leads to multiple residuals for the ordinal outcome and therefore difficult to interpret. \citet{residuals-li-2012} showed that the sign-based statistic (SBS)
+For a continuous outcome $\mathcal{Y}$, the residual is traditionally defined as the difference between the observed and fitted values. For ordinal outcomes, the residuals are more difficult to define, and few definitions have been proposed in the literature. \citet{graphical-liu-2009} proposed using the cumulative sums of residuals derived from collapsing the ordered categories into multiple binary outcomes. Unfortunately, this method leads to multiple residuals for the ordinal outcome and therefore is difficult to interpret. \citet{residuals-li-2012} showed that the sign-based statistic (SBS)
 \begin{equation}
 \label{eqn:pres}
   R_{SBS} = E\left\{sign\left(y - \mathcal{Y}\right)\right\} = Pr\left\{y > \mathcal{Y}\right\} - Pr\left\{y < \mathcal{Y}\right\},
 \end{equation}
-can be used as a residual for proportional odds regression models; these are referred to later by \citeauthor{residuals-li-2012} as \dfn{probability-based residuals}, but we will follow \citet{residuals-liu-2017} and refer to them as SBS residuals. For an overview of the theoretical and graphical properties of the SBS residual \eqref{eqn:pres}, see \citet{residuals-liu-2017}. These are available in the \CRANpkg{PResiduals} package \citep{pkg-PResiduals}. A limitation with the SBS residuals is that they are based on a discrete outcome and hence, discrete themselves. This makes using them in various diagnostic plots far less useful.
+can be used as a residual for proportional odds regression models; these are referred to later by \citeauthor{residuals-li-2012} as \dfn{probability-based residuals}, but we will follow \citet{residuals-liu-2017} and refer to them as SBS residuals. For an overview of the theoretical and graphical properties of the SBS residual \eqref{eqn:pres}, see \citet{residuals-liu-2017}. These are available in the \CRANpkg{PResiduals} package \citep{pkg-PResiduals}. A limitation with the SBS residuals is that they are based on a discrete outcome and hence, are discrete themselves. This makes using them in various diagnostic plots far less useful.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -109,7 +109,7 @@ where $F\left(\cdot\right)$ is a discrete cumulative distribution function. This
   \item jittering on the probability scale: $S | \mathcal{Y} = y \sim \mathcal{U}\left[F_a\left(y - 1\right), F_a\left(y\right)\right]$.
 \end{enumerate}
 Once a surrogate is obtained, we define the surrogate residuals in the same way as Equation~\eqref{eqn:sure}.
-In either case, if the hypothesized model is correct, then symmetry around zero still holds; that is $E\left(R_S | \boldsymbol{X}\right) = 0$. For the later case, if the hypothesized model is correct then $R_S | \boldsymbol{X} \sim \mathcal{U}\left(-1/2, 1/2\right)$. In other words, jittering on the probability scale has the additional property that the conditional distribution of $R_S$ given $\boldsymbol{X}$ has an explicit form. This allows for a full examination of the distributional information of the residual.
+In either case, if the hypothesized model is correct, then symmetry around zero still holds; that is $E\left(R_S | \boldsymbol{X}\right) = 0$. For the latter case, if the hypothesized model is correct then $R_S | \boldsymbol{X} \sim \mathcal{U}\left(-1/2, 1/2\right)$. In other words, jittering on the probability scale has the additional property that the conditional distribution of $R_S$ given $\boldsymbol{X}$ has an explicit form. This allows for a full examination of the distributional information of the residual.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -121,7 +121,7 @@ Since surrogate residuals are based on sampling, additional error is introduced.
 The procedure for bootstrapping surrogate residuals is similar to the model-based bootstrap algorithm used in linear regression. To obtain the $b$-th bootstrap replicate of the residuals, \citet{residuals-liu-2017} suggest the following algorithm:
 \begin{description}
   \item[Step 1] Perform a standard case-wise bootstrap of the original data to obtain the bootstrap sample $\left\{\left(\boldsymbol{X}_{1b}^\star, \mathcal{Y}_{1b}^\star\right), \dots, \left(\boldsymbol{X}_{ nk}^\star, \mathcal{Y}_{nk}^\star\right)\right\}$.
-  \item[Step 2] Using the procedure outlined in the previous section, obtain a sample of surrogate residuals $R_{S_{1b}}^\star, \dots, R_{S_{nb}}^\star$ using the bootstrapped data obtained in \textbf{Step 2}.
+  \item[Step 2] Using the procedure outlined in the previous section, obtain a sample of surrogate residuals $R_{S_{1b}}^\star, \dots, R_{S_{nb}}^\star$ using the bootstrapped data obtained in \textbf{Step 1}.
 \end{description}
 
 This procedure is repeated a total of $B$ times. For residual vs. covariate (i.e., $R$ vs. $X$) plots and residual vs. fitted value (i.e., $R$ vs. $f\left(\boldsymbol{X}, \boldsymbol{\beta}\right)$) plots, we simply scatter all $B \times n$ residuals on the same plot. For large data sets, we find it useful to also lower the opacity of the data points to help alleviate any issues with over plotting. This approach is valid since the bootstrap samples are drawn independently from each other. For Q-Q plots, on the other hand, \citet{residuals-liu-2017} suggest using the median of the $B$ bootstrap distributions which is the implementation used in the \pkg{sure} package.
@@ -146,7 +146,7 @@ The \CRANpkg{sure} package \citep{pkg-sure} supports a variety of R packages for
       \pkg{VGAM}    & \code{vglm} & cumulative link     & $Pr\left\{\mathcal{Y} \le j\right\}$\footnote{This is the default parameterization used by \code{vglm}. This can be reversed by setting \code{reverse = TRUE}.} \\
       \bottomrule
   \end{tabular}
-  \caption{Supported packages.}
+  \caption{Modelling packages supported by \pkg{sure} and the corresponding parameterization they use for fitting cumulative link models.}
   \label{tab:pkgs}
 \end{table}
 
@@ -169,7 +169,7 @@ For illustration, the data frame \code{df1} contains $n = 2000$ observations fro
 \label{eqn:quadratic}
   Pr\left\{\mathcal{Y} \le j\right\} = \Phi\left(\alpha_j + \beta_1 X + \beta_2 X ^ 2\right), \quad j = 1, 2, 3, 4,
 \end{equation}
-where $\alpha_1 = -16$, $\alpha_2 = -12$, $\alpha_3 = -8$, $\beta_1 = 8$, $\beta_2 = -1$, and $X \sim \mathcal{U}\left(1, 7\right)$. These simulated data are available in the \code{df1} data frame from the \pkg{sure} package and are loaded automatically with the package; see \code{?df1} for details.. Below, we fit a (correctly specified) probit model using the \code{polr} function from the \pkg{MASS} package.
+where $\alpha_1 = -16$, $\alpha_2 = -12$, $\alpha_3 = -8$, $\beta_1 = 8$, $\beta_2 = -1$, and $X \sim \mathcal{U}\left(1, 7\right)$. These simulated data are available in the \code{df1} data frame from the \pkg{sure} package and are loaded automatically with the package; see \code{?df1} for details. Below, we fit a (correctly specified) probit model using the \code{polr} function from the \pkg{MASS} package.
 \begin{example}
 # Load required package(s)
 library(MASS)
