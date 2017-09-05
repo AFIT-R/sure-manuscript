@@ -54,7 +54,7 @@ Common choices for the link function $G^{-1}\left(\cdot\right)$ and the implied 
       logit\footnote{This is typically the default link function used by most statistical software.}   & logistic  & $\exp\left(y\right) / \left[1 + \exp\left(y\right)\right]$ & $\log\left[p / \left(1 - p\right)\right]$ \\
       probit & standard normal & $\Phi\left(y\right)$ & $\Phi^{-1}\left(p\right)$ \\
       log-log & Gumbel (max) & $\exp\left[-\exp\left(-y\right)\right]$ & $-\log\left[-\log\left(p\right)\right]$ \\
-      complimentary log-log & Gumbel (min) & $1 - \exp\left[-\exp\left(y\right)\right]$ & $\log\left[-\log\left(1 - p\right)\right]$ \\
+      complementary log-log & Gumbel (min) & $1 - \exp\left[-\exp\left(y\right)\right]$ & $\log\left[-\log\left(1 - p\right)\right]$ \\
       cauchit & Cauchy & $\pi^{-1} \arctan\left(y\right) + 1/2$ & $\tan\left(\pi p - \pi / 2\right)$ \\
       \bottomrule
   \end{tabular}
@@ -235,13 +235,13 @@ grid.arrange(p1, p2, ncol = 2)
   \label{fig:quadratic-correct-surrogate}
 \end{figure}
 
-We also wrote \code{autoplot} methods for various classes of models listed in Table~\ref{tab:pkgs}, so you can just give \code{autoplot} the fitted model directly. The benefit of this approach is that the fitted values and reference distirbution (used in Q-Q plots) are automatically extracted. For example, to reproduce the Q-Q plot in Figure~\ref{fig:quadratic-correct-surrogate}, we could have just used
+The \pkg{sure} package also includes \code{autoplot} methods for the various classes of models listed in Table~\ref{tab:pkgs}, so you can just give \code{autoplot} the fitted model directly. The benefit of this approach is that the fitted values and reference distribution (used in Q-Q plots) are automatically extracted. For example, to reproduce the Q-Q plot in Figure~\ref{fig:quadratic-correct-surrogate}, we could have just used
 \begin{example}
 set.seed(101)  # for reproducibility
 autoplot(fit.polr, what = "qq")  # same as top right of Figure 1
 \end{example}
 
-Suppose that we did not include the quadratic term in our fitted model. We could expect a residual-vs-$x$ plot to clearly indicate that such a (correct) quadratic term is missing. Below we update the previously fitted model by removing the quadratic term, then update the residual-vs-covariate plots (code not shown). The updated residual plots are displayed in Figure~\ref{fig:quadratic}.
+Suppose that we did not include the quadratic term in our fitted model. We would expect a residual-vs-$x$ plot to indicate that such a quadratic term is missing. Below we update the previously fitted model by removing the quadratic term, then update the residual-vs-covariate plots (code not shown). The updated residual plots are displayed in Figure~\ref{fig:quadratic}.
 \begin{example}
 fit.polr <- update(fit.polr, y ~ x)  # remove quadratic term
 \end{example}
@@ -279,7 +279,7 @@ library(rms)
 fit.orm <- orm(y ~ x, data = df2, family = "probit", x = TRUE)
 \end{example}
 
-If heteroscedasticity is present, we would expect this to show up in various diagnostic plots, such as a residual vs. covariate plot in this case. Below we obtain the SBS and surrogate residuals as before and plot them against $X$. The results are displayed in Figure~\ref{fig:heteroscedasticity}.
+If heteroscedasticity is present, we would expect this to show up in various diagnostic plots, such as a residual vs. covariate plot. Below we obtain the SBS and surrogate residuals as before and plot them against $X$. The results are displayed in Figure~\ref{fig:heteroscedasticity}.
 \begin{example}
 pres <- presid(fit.orm)  # SBS residuals
 set.seed(102)  # for reproducibility
@@ -314,7 +314,7 @@ For this example, we simulated $n = 2000$ observations from the following model
 \begin{equation*}
   Pr\left(\mathcal{Y} \le j\right) = \Phi\left(\alpha_j + \beta_1 X + \beta_2 X ^ 2\right), \quad j = 1, 2, 3, 4
 \end{equation*}
-where $G\left(\cdot\right)$ is the cumulative distribution function for the gumbel distribution. The data are available in the data frame \code{df3} available with the package; see \code{?df3} for details.
+The data are available in the data frame \code{df3} within the package; see \code{?df3} for details.
 
 below we fit a model with various link functions. For this model, however, the correct link function to use is the log-log link. From these models, we construct Q-Q plots of the residuals using $R = 100$ bootstrap replicates. The results are displayed in Figure~\ref{fig:link}.
 \begin{example}
@@ -338,7 +338,7 @@ From the Q-Q plots in Figure~\ref{fig:link}, it is clear the the model with the 
 \begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.7\textwidth]{link}
-  \caption{Q-Q plots of the residuals for various cumulative link models fit to simulated data with gumbel errors. \textit{Top left}: A model with probit link. \textit{Top right}: A model with logit link. \textit{Bottom left}: A model with log-log link (i.e., the correct model). \textit{Top left}: A model with complimentary log-log link.}  
+  \caption{Q-Q plots of the residuals for various cumulative link models fit to simulated data with gumbel errors. \textit{Top left}: A model with probit link. \textit{Top right}: A model with logit link. \textit{Bottom left}: A model with log-log link (i.e., the correct model). \textit{Top left}: A model with complementary log-log link.}  
   \label{fig:link}
 \end{figure}
 % 
@@ -349,7 +349,7 @@ From the Q-Q plots in Figure~\ref{fig:link}, it is clear the the model with the 
 \subsection{Checking the proportionality assumption}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-An important feature of the cumulative link model \eqref{eqn:clm} is the proportional odds assumption, which assumes that mean structure, $f\left(\boldsymbol{X}, \boldsymbol{\beta}\right)$, remains the same for each of the $J$ categories; for the logit case (see row one of Table~\ref{tab:common}), this is also referred to as the proportional odds assumption. \citet[pp. 334--335]{regression-harrell-2001} suggests computing each observation's contribution to the first derivative of the log likelihood function with respect to $\boldsymbol{\beta}$, average them within each of the $J$ categories, and examine any trends in the residual plots, but these plots can be difficult to interpret. Fortunately, it is relatively straight forward to use the simulated surrogate response values $S$ to check the proportionality assumption.
+An important feature of the cumulative link model \eqref{eqn:clm} is the proportional odds assumption, which assumes that mean structure, $f\left(\boldsymbol{X}, \boldsymbol{\beta}\right)$, remains the same for each of the $J$ categories; for the logit case (see row one of Table~\ref{tab:common}), this is also referred to as the proportional odds assumption. \citet[pp. 334--335]{regression-harrell-2001} suggests computing each observation's contribution to the first derivative of the log likelihood function with respect to $\boldsymbol{\beta}$, average them within each of the $J$ categories, and examine any trends in the residual plots, but these plots can be difficult to interpret. Fortunately, it is relatively straightforward to use the simulated surrogate response values $S$ to check the proportionality assumption.
 
 To illustrate, we generated 2000 observations from each of the following two probit models
 \begin{equation*}
@@ -414,7 +414,7 @@ From Figure~\ref{fig:proportionality}, it is clear that $\beta_1 - \beta_2 \ne 0
 \section{Summary}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-In this paper, we have introduced the \pkg{sure} package which implements the surrogate approach to residuals for ordinal regression models described in \citet{residuals-liu-2017}. Using simulated data sets, we have illustrated the various properties of these residuals and how they can be used to check various assumptions in the ordinal regression model (e.g., heteroscedasticity, misspecified link functions, etc.) using a continuous residuals which produces diagnostic plots not unlike those seen in ordinary linear regression. This offers a new way of performing typical diagnostic checks for ordinal regression models that are easily interpreted by the analyst. Furthermore, this new approach to constructing residuals for ordinal regression models is still under active development and new functionality will be added to \pkg{sure} accordingly in the future.
+In this paper, we have introduced the \pkg{sure} package which implements the surrogate approach to residuals for ordinal regression models described in \citet{residuals-liu-2017}. Using simulated data sets, we have illustrated the various properties of these residuals and how they can be used to check various assumptions in the ordinal regression model (e.g., heteroscedasticity, misspecified link functions, etc.) using continuous residuals which produce diagnostic plots not unlike those seen in ordinary linear regression. This offers a new way of performing typical diagnostic checks for ordinal regression models that are easily interpreted by the analyst. Furthermore, this new approach to constructing residuals for ordinal regression models is still under active development and new functionality will be added to \pkg{sure} accordingly in the future.
 
 
 
@@ -451,8 +451,8 @@ TBD.
   \email{bradleyboehmke@gmail.com}}
   
 \address{Dungang Liu\\
-  University of Cincinnati Linden\\
-  2950 Hobson Way\\
+  University of Cincinnati\\
+  2925 Campus Green Dr\\
   Cincinnati, OH 45221\\
   United States of America\\
   \email{dungang.liu@uc.edu}}
