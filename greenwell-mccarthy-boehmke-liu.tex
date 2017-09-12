@@ -41,7 +41,7 @@ Another way to interpret the cumulative link model is through a \dfn{latent} con
 \begin{equation*}
   y = j \quad if \quad \alpha_{j - 1} < z \le \alpha_j.
 \end{equation*}
-For $\epsilon \sim N\left(0, 1\right)$, this leads to the usual probit model for ordinal responses
+For $\epsilon \sim N\left(0, 1\right)$, this leads to the usual probit model for ordinal responses,
 \begin{equation*}
   \Pr\left\{\mathcal{Y} \le j\right\} = \Pr\left\{\mathcal{Z} \le \alpha_j\right\} = \Pr\left\{-f\left(\boldsymbol{X}, \boldsymbol{\beta}\right) + \epsilon \le \alpha_j\right\} = \Phi\left(\alpha_j + f\left(\boldsymbol{X}, \boldsymbol{\beta}\right)\right).
 \end{equation*}
@@ -69,7 +69,7 @@ For a continuous outcome $\mathcal{Y}$, the residual is traditionally defined as
 \label{eqn:pres}
   R_{SBS} = E\left\{sign\left(y - \mathcal{Y}\right)\right\} = Pr\left\{y > \mathcal{Y}\right\} - Pr\left\{y < \mathcal{Y}\right\},
 \end{equation}
-can be used as a residual for proportional odds regression models; these are referred to later by \citeauthor{residuals-li-2012} as \dfn{probability-based residuals}, but we will follow \citet{residuals-liu-2017} and refer to them as SBS residuals. For an overview of the theoretical and graphical properties of the SBS residual \eqref{eqn:pres}, see \citet{residuals-liu-2017}. These are available in the \CRANpkg{PResiduals} package \citep{pkg-PResiduals}. A limitation with the SBS residuals is that they are based on a discrete outcome and hence, are discrete themselves. This makes using them in various diagnostic plots far less useful.
+can be used as a residual for proportional odds regression models; these are referred to later by \citeauthor{residuals-li-2012} as \dfn{probability-based residuals}, but we will follow \citet{residuals-liu-2017} and refer to them as SBS residuals. For an overview of the theoretical and graphical properties of the SBS residual \eqref{eqn:pres}, see \citet{residuals-liu-2017}. These are available in the \CRANpkg{PResiduals} package \citep{pkg-PResiduals}. A limitation with the SBS residuals is that they are based on a discrete outcome and hence, are discrete themselves. This makes using them in various diagnostic plots far less useful, as will be illustrated.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -95,6 +95,7 @@ These properties allow for a thorough examination of the residuals to check mode
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Jittering for general models}
+\label{sec:jittering}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The latent method discussed in Section~\ref{sec:surrogate} applies to cumulative link models for ordinal outcomes. For more general models, we can define a surrogate using a technique called \dfn{jittering}. Suppose the true model for an ordinal outcome $\mathcal{Y}$
@@ -116,7 +117,7 @@ In either case, if the hypothesized model is correct, then symmetry around zero 
 \subsection{Bootstrapping}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Since surrogate residuals are based on sampling, additional error is introduced. One way to minimize this sampling error and help stabilize any patterns in diagnostic plots is to use the bootstrap \citep{efron-another-1979}.
+Since the surrogate residuals are based on random sampling, additional error is introduced. One way to minimize this sampling error and help stabilize any patterns in diagnostic plots is to use the bootstrap \citep{efron-another-1979}.
 
 The procedure for bootstrapping surrogate residuals is similar to the model-based bootstrap algorithm used in linear regression. To obtain the $b$-th bootstrap replicate of the residuals, \citet{residuals-liu-2017} suggest the following algorithm:
 \begin{description}
@@ -124,15 +125,16 @@ The procedure for bootstrapping surrogate residuals is similar to the model-base
   \item[Step 2] Using the procedure outlined in the previous section, obtain a sample of surrogate residuals $R_{S_{1b}}^\star, \dots, R_{S_{nb}}^\star$ using the bootstrapped data obtained in \textbf{Step 1}.
 \end{description}
 
-This procedure is repeated a total of $B$ times. For residual vs. covariate (i.e., $R$ vs. $X$) plots and residual vs. fitted value (i.e., $R$ vs. $f\left(\boldsymbol{X}, \boldsymbol{\beta}\right)$) plots, we simply scatter all $B \times n$ residuals on the same plot. For large data sets, we find it useful to also lower the opacity of the data points to help alleviate any issues with over plotting. This approach is valid since the bootstrap samples are drawn independently from each other. For Q-Q plots, on the other hand, \citet{residuals-liu-2017} suggest using the median of the $B$ bootstrap distributions which is the implementation used in the \pkg{sure} package.
+This procedure is repeated a total of $B$ times. For residual vs. covariate (i.e., $R$ vs. $X$) plots and residual vs. fitted value (i.e., $R$ vs. $f\left(\boldsymbol{X}, \boldsymbol{\beta}\right)$) plots, we simply scatter all $B \times n$ residuals on the same plot. This approach is valid since the bootstrap samples are drawn independently from each other. For large data sets, we find it useful to also lower the opacity of the data points to help alleviate any issues with over plotting. For Q-Q plots, on the other hand, \citet{residuals-liu-2017} suggest using the median of the $B$ bootstrap distributions which is the implementation used in the \CRANpkg{sure} package \citep{pkg-sure}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Surrogate-based residuals in R}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The \CRANpkg{sure} package \citep{pkg-sure} supports a variety of R packages for fitting cumulative link and other types of models. The supported packages and their corresponding functions are described in Table~\ref{tab:pkgs}.
+The \pkg{sure} package supports a variety of R packages for fitting cumulative link and other types of models. The supported packages and their corresponding functions are described in Table~\ref{tab:pkgs}.
 \begin{table}[!htbp]
+  \centering
   \begin{tabular}{llll}
     \toprule
       Package & Function(s) & Model & Parameterization \\
@@ -144,9 +146,10 @@ The \CRANpkg{sure} package \citep{pkg-sure} supports a variety of R packages for
                     & \code{orm}  & cumulative link     & $Pr\left\{\mathcal{Y} \ge j\right\}$ \\
       \pkg{ordinal} & \code{clm}  & cumulative link     & $Pr\left\{\mathcal{Y} \le j\right\}$ \\
       \pkg{VGAM}    & \code{vglm} & cumulative link     & $Pr\left\{\mathcal{Y} \le j\right\}$\footnote{This is the default parameterization used by \code{vglm}. This can be reversed by setting \code{reverse = TRUE}.} \\
+                    & \code{vgam} & cumulative link     & $Pr\left\{\mathcal{Y} \le j\right\}$ \\
       \bottomrule
   \end{tabular}
-  \caption{Modelling packages supported by \pkg{sure} and the corresponding parameterization they use for fitting cumulative link models.}
+  \caption{Ordinal regression modelling packages supported by \pkg{sure} and the corresponding parameterization they use for fitting cumulative link models.}
   \label{tab:pkgs}
 \end{table}
 
@@ -157,7 +160,7 @@ The \pkg{sure} package currently only exports four functions:
   \item \code{autoplot}---produce various diagnostic plots using \CRANpkg{ggplot2} graphics \citep{pkg-ggplot2};
  \item \code{gof}---simulate p-values from a goodness-of-fit test.
 \end{itemize}
-In addition, the package also includes three simulated data sets: \code{df1}, \code{df2}, and \code{df3}. These data sets are used to demonstrate various uses of the surrogate residual approach throughout this paper.
+In addition, the package also includes three simulated data sets: \code{df1}, \code{df2}, and \code{df3}. These data sets are used throughout the paper to demonstrate how the surrogate-based residual can be useful as a diagnostic tool for ordinal regression models.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -305,6 +308,30 @@ In Figure~\ref{fig:heteroscedasticity}, it is clear from the plot of the surroga
   \label{fig:heteroscedasticity}
 \end{figure}
 
+As outlined in Section~\ref{sec:jittering}, the jittering technique is broadly applicable to virtually all parametric and nonparametric models for ordinal responses. To illustrate, the code chunk below uses the \pkg{VGAM} package to fit a \dfn{vector generalized additive} model to the same data using a nonparametric smooth for $x$.
+\begin{example}
+library(VGAM)
+fit.vgam <- vgam(y ~ s(x), family = cumulative(link = probit, parallel = TRUE),
+                 data = df2)
+\end{example}
+
+To obtain a surrogate-based residual using the jittering technique, we can set \code{method = "jitter"} in the call to \code{resids} or \code{autoplot}. There is also the option \code{jitter.scale} which can be set to either \code{"probability"}, for jittering on the probability scale (the default), or \code{"response"}, for jittering on the response scale. In the code chunk below, we use the \code{autoplot} function to obtain residual-by-covariate plots using both types of jittering. The results, which are displayed in Figure~\ref{fig:heteroscedasticity2}, clearly indicate that the variance increases with increasing $x$.
+\begin{example}
+set.seed(103)  # for reproducibility
+p1 <- autoplot(fit.vgam, what = "covariate", x = df2$x, method = "jitter",
+               xlab = "x")
+p2 <- autoplot(fit.vgam, what = "covariate", x = df2$x, method = "jitter",
+               jitter.scale = "response", xlab = "x")
+grid.arrange(p1, p2, ncol = 2)  # Figure ?
+\end{example}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=1\textwidth]{heteroscedasticity2}
+  \caption{Residual vs. covariate plots from a VGAM fit to the simulated data. \textit{Left}: Jittering on the probability scale (default). \textit{Right}: Jittering on the response scale.}
+  \label{fig:heteroscedasticity2}
+\end{figure}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Detecting a misspecified link function}
@@ -338,11 +365,29 @@ From the Q-Q plots in Figure~\ref{fig:link}, it is clear the the model with the 
 \begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.7\textwidth]{link}
-  \caption{Q-Q plots of the residuals for various cumulative link models fit to simulated data with gumbel errors. \textit{Top left}: A model with probit link. \textit{Top right}: A model with logit link. \textit{Bottom left}: A model with log-log link (i.e., the correct model). \textit{Top left}: A model with complementary log-log link.}  
+  \caption{Q-Q plots of the residuals for various cumulative link models fit to simulated data with gumbel errors. \textit{Top left}: A model with probit link. \textit{Top right}: A model with logit link. \textit{Bottom left}: A model with log-log link (i.e., the correct model). \textit{Bottom right}: A model with complementary log-log link.}  
   \label{fig:link}
 \end{figure}
-% 
-% Alternatively, we could also use the surrogate residuals to make use of existing distance-based goodness-of-fit (GOF) tests; for example, the Kolmogorov-Schmirnov distance.
+
+Alternatively, we could also use the surrogate residuals to make use of existing distance-based goodness-of-fit (GOF) tests; for example, the Kolmogorov-Smirnov distance. The \code{gof} function in the \pkg{sure} can be used to produce simulated $p$-values from such tests. 
+
+Currently, the \code{gof} function supports three goodness-of-fit tests: the Kolmogorov-Smirnov test (\code{test = "ks"}), the Anderson-Darling test (\code{test = "ad"}), and the Cramer-Von Mises test (\code{test = "cvm"}). Below, we use the \code{gof} function to simulate $p$-values from the Anderson-Darling test for each of the four models; we also set \code{nsim} to 100 to produce smoother plots and reduce the sampling error induced by the surrogate procedure. The \code{plot} method is then used to display the empirical distribution function (EDF) of the simulated $p$-values. A good fit would imply uniformly distributed $p$-values; hence, the EDF would be relatively straight with a slope of one. The results, which are displayed in Figure~\ref{fig:gof}, agree with the Q-Q plots from Figure~\ref{fig:link} in that the log-log link is the most appropriate for these data. (\strong{Note} that the plotting method for \code{"gof"} objects uses base R graphics; hence, we can use the \code{par} function to set various graphical parameters.)
+\begin{example}
+# Figure ?
+par(mfrow = c(2, 2), mar = c(2, 4, 2, 2) + 0.1) 
+set.seed(8491)  # for reproducibility
+plot(gof(fit.probit, nsim = 100, test = "ad"), main = "")
+plot(gof(fit.logistic, nsim = 100, test = "ad"), main = "")
+plot(gof(fit.loglog, nsim = 100, test = "ad"), main = "")
+plot(gof(fit.cloglog, nsim = 100, test = "ad"), main = "")
+\end{example}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{gof}
+  \caption{EDFs of the simulated $p$-values from an Anderson-Darling GOF test for various cumulative link models fit to simulated data with gumbel errors. \textit{Top left}: A model with probit link. \textit{Top right}: A model with logit link. \textit{Bottom left}: A model with log-log link (i.e., the correct model). \textit{Bottom right}: A model with complementary log-log link.}  
+  \label{fig:gof}
+\end{figure}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -351,22 +396,25 @@ From the Q-Q plots in Figure~\ref{fig:link}, it is clear the the model with the 
 
 An important feature of the cumulative link model \eqref{eqn:clm} is the proportional odds assumption, which assumes that mean structure, $f\left(\boldsymbol{X}, \boldsymbol{\beta}\right)$, remains the same for each of the $J$ categories; for the logit case (see row one of Table~\ref{tab:common}), this is also referred to as the proportional odds assumption. \citet[pp. 334--335]{regression-harrell-2001} suggests computing each observation's contribution to the first derivative of the log likelihood function with respect to $\boldsymbol{\beta}$, average them within each of the $J$ categories, and examine any trends in the residual plots, but these plots can be difficult to interpret. Fortunately, it is relatively straightforward to use the simulated surrogate response values $S$ to check the proportionality assumption.
 
-To illustrate, we generated 2000 observations from each of the following two probit models
+To illustrate, we generated 2000 observations from each of the following probit models
 \begin{equation*}
-  Pr\left(\mathcal{Y} \le j\right) = \Phi\left(\alpha_j + \beta_1 X\right), \quad j = 1, 2, 3, \quad \textrm{and} \quad Pr\left(\mathcal{Y} \le j\right) = \Phi\left(\alpha_j + \beta_2 X\right), \quad j = 4, 5,
+  Pr\left(\mathcal{Y} \le j\right) = \Phi\left(\alpha_j + \beta_1 X\right), \quad j = 1, 2, 3, \quad \textrm{and} \quad Pr\left(\mathcal{Y} \le j\right) = \Phi\left(\alpha_j + \beta_2 X\right), \quad j = 4, 5, 6,
 \end{equation*}
-where $\alpha_1 = -1.5$, $\alpha_2 = 0$, $\alpha_3 = 1$, $\alpha_4 = 3$, $\beta_1 = 1$, and $\beta_2 = 1.5$. The data are available in the data frame \code{df4} included with the package; see \code{?df4} for details. 
+where $\alpha_1 = -1.5$, $\alpha_2 = 0$, $\alpha_3 = 1$, $\alpha_4 = 3$, $\beta_1 = 1$, and $\beta_2 = 1.5$. (The R code for generating the data can be made available upon request.) 
 
 Checking the proportionality assumption here amounts to checking whether or not $\beta_1 - \beta_2 = 0$. As outlined in \citet{residuals-liu-2017}, we can generate surrogates $S_1 \sim \mathcal{N}\left(-\beta_1 X, 1\right)$ and $S_s \sim \mathcal{N}\left(-\beta_2 X, 1\right)$, both conditional on $X$. We then define the difference $D = S_2 - S_1$ which, conditional on $X$, follows a $\mathcal{N}\left(\left(\beta_1 - \beta_2\right) X, 1\right)$ distribution. If $\beta_1 - \beta_2 = 0$, then $D$ should be independent of $X$. This can be easily checked by plotting $D$ against $X$. Below, we use the \code{surrogate} function to generate the surrogate response values directly (as opposed to the residuals) and generate the $D$ vs. $X$ plot shown in Figure~\ref{fig:proportionality}.
 \begin{example}
-library(VGAM)
+# Fit separate models (VGAM should already be loaded)
 fit1 <- vglm(y ~ x, data = df4[1:2000, ], 
              cumulative(link = probit, parallel = TRUE))
 fit2 <- update(fit1, data = df4[2001:4000, ])
+
+# Generate surrogate response values
 s1 <- surrogate(fit1)
 s2 <- surrogate(fit2)
-d <- data.frame(D = s1 - s2, X = df4[1:2000, ]$x)
-ggplot(d, aes(x = X, y = D)) +
+
+# Figure ?
+ggplot(data.frame(D = s1 - s2, X = df4[1:2000, ]$x) , aes(x = X, y = D)) +
   geom_point() +
   geom_smooth(se = FALSE)
 \end{example}

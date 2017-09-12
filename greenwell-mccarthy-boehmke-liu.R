@@ -90,6 +90,22 @@ pdf(file = "heteroscedasticity.pdf", width = 8, height = 4)
 grid.arrange(p1, p2, ncol = 2)
 dev.off()
 
+# Fit a VGAM (i.e., nonparametric model) with probit link
+fit.vgam <- vgam(y ~ s(x), family = cumulative(link = probit, parallel = TRUE),
+                 data = df2)
+
+# Residual vs. covariate plots: jittering
+set.seed(103)
+p1 <- autoplot(fit.vgam, what = "covariate", x = df2$x, method = "jitter",
+               xlab = "x")
+p2 <- autoplot(fit.vgam, what = "covariate", x = df2$x, method = "jitter",
+               jitter.scale = "response", xlab = "x")
+
+# Figure?
+pdf(file = "heteroscedasticity2.pdf", width = 8, height = 4)
+grid.arrange(p1, p2, ncol = 2)
+dev.off()
+
 
 ################################################################################
 # Checking the proportionality assumption
@@ -134,6 +150,16 @@ p4 <-  autoplot(fit.cloglog, nsim = 100, what = "qq")
 # Figure ?
 pdf(file = "link.pdf", width = 7, height = 7)
 grid.arrange(p1, p2, p3, p4, ncol = 2)  # bottom left plot is correct model
+dev.off()
+
+# Figure ?
+pdf(file = "gof.pdf", width = 7, height = 7)
+par(mfrow = c(2, 2), mar = c(4, 4, 2, 2) + 0.1) 
+set.seed(8491)  # for reproducibility
+plot(gof(fit.probit, nsim = 100, test = "ad"), main = "")
+plot(gof(fit.logistic, nsim = 100, test = "ad"), main = "")
+plot(gof(fit.loglog, nsim = 100, test = "ad"), main = "")
+plot(gof(fit.cloglog, nsim = 100, test = "ad"), main = "")
 dev.off()
 
 
