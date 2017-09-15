@@ -1,11 +1,11 @@
 % !TeX root = RJwrapper.tex
-\title{Residuals and Diagnostics for Ordinal Regression Models: An Introduction to the sure package}
+\title{Residuals and Diagnostics for Binary and Ordinal Regression Models: An Introduction to the sure package}
 \author{by Brandon M. Greenwell, Andrew J. McCarthy, Bradley C. Boehmke, and Dungang Liu}
 
 \maketitle
 
 \abstract{
-Residual diagnostics is an important topic in the classroom, but it is less often used in practice. Part of the reason for this is that more complex models, like cumulative link models and logistic regression, do not produce standard residuals that are easily interpreted as those in ordinary linear regression. In this paper, we introduce the concept of surrogate residuals and demonstrate their use through the R package \pkg{sure}.
+Residual diagnostics is an important topic in the classroom, but it is less often used in practice when the response is binary or ordinal. Part of the reason for this is that generalized models for discrete data, like cumulative link models and logistic regression, do not produce standard residuals that are easily interpreted as those in ordinary linear regression. In this paper, we introduce the R package \pkg{sure}, which implements a recently developed idea of \textbf{SU}rrogate \textbf{RE}siduals. We demonstrate the utility of the package in detection of cumulative link model misspecification with respect to mean structures, link functions, heteroscedasticity, proportionality, and interaction detection.
 }
 
 
@@ -13,7 +13,7 @@ Residual diagnostics is an important topic in the classroom, but it is less ofte
 \section{Introduction}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Categorical outcomes are encountered frequently in practice across different fields. For example, in medical studies, the outcome of interest is often binary (e.g., presence or absence of a particular disease after applying a treatment). It is also relatively common for a categorical outcome to have a natural ordering. For instance, in an opinion poll, the response may be satisfaction, with categories low, medium, and high. In this case, the response is ordered: low $<$ medium $<$ high.
+Categorical outcomes are encountered frequently in practice across different fields. For example, in medical studies, the outcome of interest is often binary (e.g., presence or absence of a particular disease after applying a treatment). A binary outcome can be viewed as a special case of an ordinal outcome; that is, a categorical outcome having a natural ordering. For instance, in an opinion poll, the response may be satisfaction, with categories low, medium, and high. In this case, the response is ordered: low $<$ medium $<$ high.
 
 % Logistic and probit regression are popular choices for modelling a binary outcome. The surrogate approach to constructing residuals actually applies to a wide class of general models of the form 
 % \begin{equation*}
@@ -25,7 +25,7 @@ Categorical outcomes are encountered frequently in practice across different fie
 % \end{equation*}
 % where $\Phi\left(\cdot\right)$ is the cumulative distribution function for the standard normal distribution.
 
-The \dfn{cumulative link} model is a natural choice for modelling an ordinal outcome. Consider an ordinal categorical outcome $\mathcal{Y}$ with ordered categories $1 < 2 < \dots < J$. In a cumulative link model, the cumulative probabilities are linked to the linear predictor according to
+The \dfn{cumulative link} model is a natural choice for modelling a binary or ordinal outcome. Consider an ordinal categorical outcome $\mathcal{Y}$ with ordered categories $1 < 2 < \dots < J$. In a cumulative link model, the cumulative probabilities are linked to the predictors according to
 \begin{equation}
 \label{eqn:clm}
   G^{-1}\left(\Pr\left\{\mathcal{Y} \le j\right\}\right) = \alpha_j + f\left(\boldsymbol{X}, \boldsymbol{\beta}\right),
@@ -69,11 +69,11 @@ For a continuous outcome $\mathcal{Y}$, the residual is traditionally defined as
 \label{eqn:pres}
   R_{SBS} = E\left\{sign\left(y - \mathcal{Y}\right)\right\} = Pr\left\{y > \mathcal{Y}\right\} - Pr\left\{y < \mathcal{Y}\right\},
 \end{equation}
-can be used as a residual for proportional odds regression models; these are referred to later by \citeauthor{residuals-li-2012} as \dfn{probability-based residuals}, but we will follow \citet{residuals-liu-2017} and refer to them as SBS residuals. For an overview of the theoretical and graphical properties of the SBS residual \eqref{eqn:pres}, see \citet{residuals-liu-2017}. These are available in the \CRANpkg{PResiduals} package \citep{pkg-PResiduals}. A limitation with the SBS residuals is that they are based on a discrete outcome and hence, are discrete themselves. This makes using them in various diagnostic plots far less useful, as will be illustrated.
+can be used as a residual for ordinal outcomes; these are referred to later by \citeauthor{residuals-li-2012} as \dfn{probability-based residuals}, but we will follow \citet{residuals-liu-2017} and refer to them as SBS residuals. For an overview of the theoretical and graphical properties of the SBS residual \eqref{eqn:pres}, see \citet{residuals-liu-2017}. These are available in the \CRANpkg{PResiduals} package \citep{pkg-PResiduals}. A limitation with the SBS residuals is that they are based on a discrete outcome and hence, are discrete themselves. This makes using them in various diagnostic plots far less useful, as will be illustrated.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Surrogate-based residuals}
+\section{Surrogate residuals}
 \label{sec:surrogate}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -82,15 +82,15 @@ can be used as a residual for proportional odds regression models; these are ref
 \label{eqn:sure}
 R_S = S - E\left(S | \boldsymbol{X}\right),
 \end{equation}
-where $S$ is a continuous variable based on the conditional distribution of the latent variable $\mathcal{Z}$ given $\mathcal{Y}$. In particular, given $\mathcal{Y} = y$, \citet{residuals-liu-2017} show that $S$ follows a truncated distribution obtained by truncating the distribution of $\mathcal{Z} = -f\left(\boldsymbol{X}, \boldsymbol{\beta}\right) + \epsilon$ using the interval $\left(\alpha_{y - 1}, \alpha_y\right)$. The benefit of the surrogate-based residual \eqref{eqn:sure} is that it is based on a continuous variable $S$, hence, $R_S$ is also continuous. 
+where $S$ is a continuous variable based on the conditional distribution of the latent variable $\mathcal{Z}$ given $\mathcal{Y}$. In particular, given $\mathcal{Y} = y$, \citet{residuals-liu-2017} show that $S$ follows a truncated distribution obtained by truncating the distribution of $\mathcal{Z} = -f\left(\boldsymbol{X}, \boldsymbol{\beta}\right) + \epsilon$ using the interval $\left(\alpha_{y - 1}, \alpha_y\right)$. The benefit of the surrogate residual \eqref{eqn:sure} is that it is based on a continuous variable $S$, hence, $R_S$ is also continuous. 
 
 Furthermore, it can be shown \citep{residuals-liu-2017} that if the hypothesized model agrees with the true model, then $R_S$ will have the following properties:
 \begin{description}
   \item[symmetry around zero] $E\left(R_S | \boldsymbol{X}\right) = 0$;
   \item[homogeneity] $Var\left(R_S | \boldsymbol{X}\right) = c$, a constant that is independent of $\boldsymbol{X}$;
-  \item[reference distribution] the empirical distribution of $R_S$ approximates an explicit distribution that is related to the link function $G^{-1}\left(\cdot\right)$.
+  \item[reference distribution] the empirical distribution of $R_S$ approximates an explicit distribution that is related to the link function $G^{-1}\left(\cdot\right)$. In particular, independent of $\boldsymbol{X}$, $R_S \sim G\left(c + \int udG(u)\right)$, where $c$ is a constant.
 \end{description}
-These properties allow for a thorough examination of the residuals to check model adequacy and misspecification of the mean structure and link function.
+According to the last property, if $\int u dG\left(u\right) = 0$, then $R_S \sim G\left(\cdot\right)$. These properties allow for a thorough examination of the residuals to check model adequacy and misspecification of the mean structure and link function.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -117,7 +117,7 @@ In either case, if the hypothesized model is correct, then symmetry around zero 
 \subsection{Bootstrapping}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Since the surrogate residuals are based on random sampling, additional error is introduced. One way to minimize this sampling error and help stabilize any patterns in diagnostic plots is to use the bootstrap \citep{efron-another-1979}.
+Since the surrogate residuals are based on random sampling, additional variability is introduced. One way to account for this sample variability and help stabilize any patterns in diagnostic plots is to use the bootstrap \citep{efron-another-1979}.
 
 The procedure for bootstrapping surrogate residuals is similar to the model-based bootstrap algorithm used in linear regression. To obtain the $b$-th bootstrap replicate of the residuals, \citet{residuals-liu-2017} suggest the following algorithm:
 \begin{description}
@@ -129,7 +129,7 @@ This procedure is repeated a total of $B$ times. For residual vs. covariate (i.e
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Surrogate-based residuals in R}
+\section{Surrogate residuals in R}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The \pkg{sure} package supports a variety of R packages for fitting cumulative link and other types of models. The supported packages and their corresponding functions are described in Table~\ref{tab:pkgs}.
@@ -160,7 +160,7 @@ The \pkg{sure} package currently only exports four functions:
   \item \code{autoplot}---produce various diagnostic plots using \CRANpkg{ggplot2} graphics \citep{pkg-ggplot2};
  \item \code{gof}---simulate p-values from a goodness-of-fit test.
 \end{itemize}
-In addition, the package also includes three simulated data sets: \code{df1}, \code{df2}, and \code{df3}. These data sets are used throughout the paper to demonstrate how the surrogate-based residual can be useful as a diagnostic tool for ordinal regression models.
+In addition, the package also includes three simulated data sets: \code{df1}, \code{df2}, and \code{df3}. These data sets are used throughout the paper to demonstrate how the surrogate residual can be useful as a diagnostic tool for ordinal regression models.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -212,13 +212,13 @@ grid.arrange(p1, p2, ncol = 2)
   \label{fig:quadratic-correct-sbs}
 \end{figure}
 
-Similarly, we can use the \code{resids} function in package \pkg{sure} to obtain the surrogate-based residuals discussed in Section~\ref{sec:surrogate}. This is illustrated in the following code chunk. the results are displayed in Figure~\ref{fig:quadratic-correct-surrogate}.
+Similarly, we can use the \code{resids} function in package \pkg{sure} to obtain the surrogate residuals discussed in Section~\ref{sec:surrogate}. This is illustrated in the following code chunk. the results are displayed in Figure~\ref{fig:quadratic-correct-surrogate}.
 \begin{example}
 # Load required package(s)
 library(ggplot2)
 library(sure)
 
-# Obtain surrogate-based residuals
+# Obtain surrogate residuals
 set.seed(101)  # for reproducibility
 sres <- resids(fit.polr)
 
@@ -234,7 +234,7 @@ grid.arrange(p1, p2, ncol = 2)
 \begin{figure}[!htbp]
   \centering
   \includegraphics[width=1\textwidth]{quadratic-correct-surrogate}
-  \caption{Surrogate-based residual plots for the (correctly specified) probit model fit to the \code{df1} data set. \textit{Left}: Residual vs. covariate plot. \textit{Right}: Q-Q plot of the residuals. Nonparametric smooths are indicated by red curves.}
+  \caption{surrogate residual plots for the (correctly specified) probit model fit to the \code{df1} data set. \textit{Left}: Residual vs. covariate plot. \textit{Right}: Q-Q plot of the residuals. Nonparametric smooths are indicated by red curves.}
   \label{fig:quadratic-correct-surrogate}
 \end{figure}
 
@@ -264,7 +264,7 @@ The SBS residuals gives some indication of a misspecified mean structure, but th
 
 One issue that often raises concerns in  statistical inference is that of heteroscedasticity; that is, when the error term has non constant variance. Heteroscedasticity can bias the statistical inference and lead to improper standard errors, confidence intervals, and $p$-values. Therefore, it is imperative to identify heteroscedacticity whenever present and take appropriate action (e.g., transformations, etc.). In ordinary linear regression, this topic has been covered extensively. For categorical models, on the other hand, not much has been proposed in the literature.
 
-As discussed in Section~\ref{sec:surrogate}, one of the properties of the surrogate-based residual $R_S$ is that, if the model is specified correctly, then $Var\left(R_S | X\right) = c$, where $c$ is a constant.
+As discussed in Section~\ref{sec:surrogate}, one of the properties of the surrogate residual $R_S$ is that, if the model is specified correctly, then $Var\left(R_S | X\right) = c$, where $c$ is a constant.
 
 For this example, we generated $n = 2000$ observations from the following ordered probit model:
 \begin{equation*}
@@ -315,7 +315,7 @@ fit.vgam <- vgam(y ~ s(x), family = cumulative(link = probit, parallel = TRUE),
                  data = df2)
 \end{example}
 
-To obtain a surrogate-based residual using the jittering technique, we can set \code{method = "jitter"} in the call to \code{resids} or \code{autoplot}. There is also the option \code{jitter.scale} which can be set to either \code{"probability"}, for jittering on the probability scale (the default), or \code{"response"}, for jittering on the response scale. In the code chunk below, we use the \code{autoplot} function to obtain residual-by-covariate plots using both types of jittering. The results, which are displayed in Figure~\ref{fig:heteroscedasticity2}, clearly indicate that the variance increases with increasing $x$.
+To obtain a surrogate residual using the jittering technique, we can set \code{method = "jitter"} in the call to \code{resids} or \code{autoplot}. There is also the option \code{jitter.scale} which can be set to either \code{"probability"}, for jittering on the probability scale (the default), or \code{"response"}, for jittering on the response scale. In the code chunk below, we use the \code{autoplot} function to obtain residual-by-covariate plots using both types of jittering. The results, which are displayed in Figure~\ref{fig:heteroscedasticity2}, clearly indicate that the variance increases with increasing $x$.
 \begin{example}
 set.seed(103)  # for reproducibility
 p1 <- autoplot(fit.vgam, what = "covariate", x = df2$x, method = "jitter",
@@ -425,6 +425,45 @@ From Figure~\ref{fig:proportionality}, it is clear that $\beta_1 - \beta_2 \ne 0
   \includegraphics[width=0.7\textwidth]{proportionality}
   \caption{Scatterplot of $D = S_1 - S_2$ vs. $X$. A nonparametric smooth is represented by the red curve.}
   \label{fig:proportionality}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Detecting interaction effects}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+For illustration, we generated $n = 2000$ observations from the following ordered probit model
+\begin{equation*}
+  Pr\left(\mathcal{Y} \le j\right) = \Phi\left(\alpha_j + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_1 X_2\right), j = 1, 2, 3, 4,
+\end{equation*}
+where $\alpha_1 = -16$, $\alpha_2 = -12$, $\alpha_3 = -8$, $\beta_1 = 8$, $\beta_2 = 3$, $\beta_3 = 5$, $X_1 \sim \mathcal{U}\left(1, 7\right)$, and $X_2$ is a factor with levels \code{Treatment} and \code{Control}. These simulated data are available in the \code{df4} data frame loaded with \pkg{sure}; see \code{?df4} for details. Below, we fit two probit models using the \code{clm} function from the \pkg{ordinal} package (which should already be loaded). The first model only includes a linear term for $X_1$ and $X_2$, while the second model also includes the interaction $X_1 X_2$.
+\begin{example}
+fit1 <- clm(y ~ x1 + x2, data = df4, link = "probit")  # wrong model
+fit2 <- clm(y ~ x1*x2, data = df4, link = "probit")  # correct model
+\end{example}
+
+If the true model contains an interaction term $X_1 X_2$, but the fitted model does not include it, we can detect this misspecification using the surrogate residuals. We simply plot $R_S$ versus $X_1$ for treatment group, and compare it to the plot of $R_S$ versus $X_1$ for the controls. The trends in these two plots should be different. Below, we use \code{ggplot} along with the \code{resids} function to construct such a plot for both fitted models (we use the $B = 25$ bootstrap simulations to reduce the sample variability in the plots). The results are displayed in Figure~\ref{fig:interaction}. The top row of Figure~\ref{fig:interaction} clearly shows some deviations from the true model, whereas the bottom row shows no signs of serious departures from the true model.
+\begin{example}
+# Figure ?
+set.seed(1105)  # for reproducibility
+p1 <- ggplot(cbind(df4, res = resids(fit1, nsim = 25)), aes(x = x1, y = res)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(se = FALSE, size = 1.2, color = "red") +
+  facet_wrap( ~ x2) +
+  ylab("Surrogate residual")
+p2 <- ggplot(cbind(df4, res = resids(fit2, nsim = 25)), aes(x = x1, y = res)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(se = FALSE, size = 1.2, color = "red") +
+  facet_wrap( ~ x2) +
+  ylab("Surrogate residual")
+grid.arrange(p1, p2, nrow = 2)
+\end{example}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=1\textwidth]{interaction}
+  \caption{Residual diagnostic plots for the simulated interaction data. \textit{Top row}: Surrogate residuals from the fitted model with no interaction term. \textit{Bottom row} Surrogate residuals from the fitted model including an interaction term.}
+  \label{fig:wine}
 \end{figure}
 
 

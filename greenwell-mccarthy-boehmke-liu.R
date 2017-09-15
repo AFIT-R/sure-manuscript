@@ -164,6 +164,55 @@ dev.off()
 
 
 ################################################################################
+# Interaction detection
+################################################################################
+
+# Function to simulate interaction data
+simInteractionData <- function(n = 2000) {
+  threshold <- c(40, 60, 80)
+  x1 <- runif(n, min = 1, max = 7)
+  x2 <- gl(2, n / 2, labels = c("Control", "Treatment"))
+  z <- 16 + 8 * x1 + 3 * (x2 == "Treatment") + 5 * x1 * (x2 == "Treatment") + 
+    rnorm(n)
+  y <- sapply(z, FUN = function(zz) {
+    ordinal.value <- 1
+    index <- 1
+    while(index <= length(threshold) && zz > threshold[index]) {
+      ordinal.value <- ordinal.value + 1
+      index <- index + 1
+    }
+    ordinal.value
+  })
+  data.frame("y" = as.ordered(y), "x1" = x1, "x2" = x2)
+}
+
+# Simulate data
+set.seed(977)
+df4 <- simInteractionData(n = 2000)
+table(df4$y)
+
+library(ordinal)
+fit1 <- clm(y ~ x1 + x2, data = df4, link = "probit")  # wrong model
+fit2 <- clm(y ~ x1*x2, data = df4, link = "probit")  # correct model
+
+library(ggplot2)
+set.seed(1105)
+p1 <- ggplot(cbind(df4, res = resids(fit1, nsim = 25)), aes(x = x1, y = res)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(se = FALSE, size = 1.2, color = "red") +
+  facet_wrap( ~ x2) +
+  ylab("Surrogate residual")
+p2 <- ggplot(cbind(df4, res = resids(fit2, nsim = 25)), aes(x = x1, y = res)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(se = FALSE, size = 1.2, color = "red") +
+  facet_wrap( ~ x2) +
+  ylab("Surrogate residual")
+pdf(file = "interaction.pdf", width = 7, height = 7)
+grid.arrange(p1, p2, nrow = 2)
+dev.off()
+
+
+################################################################################
 # Quality of wine
 ################################################################################
 
