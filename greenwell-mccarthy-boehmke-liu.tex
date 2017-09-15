@@ -444,7 +444,7 @@ fit1 <- clm(y ~ x1 + x2, data = df4, link = "probit")  # wrong model
 fit2 <- clm(y ~ x1*x2, data = df4, link = "probit")  # correct model
 \end{example}
 
-If the true model contains an interaction term $X_1 X_2$, but the fitted model does not include it, we can detect this misspecification using the surrogate residuals. We simply plot $R_S$ versus $X_1$ for treatment group, and compare it to the plot of $R_S$ versus $X_1$ for the controls. The trends in these two plots should be different. Below, we use \code{ggplot} along with the \code{resids} function to construct such a plot for both fitted models (we use the $B = 25$ bootstrap simulations to reduce the sample variability in the plots). The results are displayed in Figure~\ref{fig:interaction}. The top row of Figure~\ref{fig:interaction} clearly shows some deviations from the true model, whereas the bottom row shows no signs of serious departures from the true model.
+If the true model contains an interaction term $X_1 X_2$, but the fitted model does not include it, we can detect this misspecification using the surrogate residuals. We simply plot $R_S$ versus $X_1$ for treatment group, and compare it to the plot of $R_S$ versus $X_1$ for the controls. The trends in these two plots should be different. Below, we use \code{ggplot} along with the \code{resids} function to construct such a plot for both fitted models. (\strong{Note} we used $B = 25$ bootstrap simulations to reduce the sample variability in the plots.) The results are displayed in Figure~\ref{fig:interaction}. The top row of Figure~\ref{fig:interaction} clearly shows some deviations from the true model, whereas the bottom row shows no signs of serious departures from the true model.
 \begin{example}
 # Figure ?
 set.seed(1105)  # for reproducibility
@@ -465,7 +465,7 @@ grid.arrange(p1, p2, nrow = 2)
   \centering
   \includegraphics[width=1\textwidth]{interaction}
   \caption{Residual diagnostic plots for the simulated interaction data. \textit{Top row}: Surrogate residuals from the fitted model with no interaction term. \textit{Bottom row} Surrogate residuals from the fitted model including an interaction term.}
-  \label{fig:wine}
+  \label{fig:interaction}
 \end{figure}
 
 
