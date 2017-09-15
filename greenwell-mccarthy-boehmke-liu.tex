@@ -432,11 +432,13 @@ From Figure~\ref{fig:proportionality}, it is clear that $\beta_1 - \beta_2 \ne 0
 \section{Detecting interaction effects}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+A common challenge in model building is determining whether or not there are important interactions between the predictors in the data. Using the surrogate residuals, it is rather straightforward to determine if such an interaction effect is missing from the assumed model.
+
 For illustration, we generated $n = 2000$ observations from the following ordered probit model
 \begin{equation*}
-  Pr\left(\mathcal{Y} \le j\right) = \Phi\left(\alpha_j + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_1 X_2\right), j = 1, 2, 3, 4,
+  Pr\left(\mathcal{Y} \le j\right) = \Phi\left(\alpha_j + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_1 X_2\right), \quad j = 1, 2, 3, 4,
 \end{equation*}
-where $\alpha_1 = -16$, $\alpha_2 = -12$, $\alpha_3 = -8$, $\beta_1 = 8$, $\beta_2 = 3$, $\beta_3 = 5$, $X_1 \sim \mathcal{U}\left(1, 7\right)$, and $X_2$ is a factor with levels \code{Treatment} and \code{Control}. These simulated data are available in the \code{df4} data frame loaded with \pkg{sure}; see \code{?df4} for details. Below, we fit two probit models using the \code{clm} function from the \pkg{ordinal} package (which should already be loaded). The first model only includes a linear term for $X_1$ and $X_2$, while the second model also includes the interaction $X_1 X_2$.
+where $\alpha_1 = -16$, $\alpha_2 = -12$, $\alpha_3 = -8$, $\beta_1 = 8$, $\beta_2 = 3$, $\beta_3 = 5$, $X_1 \sim \mathcal{U}\left(1, 7\right)$, and $X_2$ is a factor with levels \code{Treatment} and \code{Control}. These simulated data are available in the \code{df4} data frame loaded with the \pkg{sure} package; see \code{?df4} for details. Below, we fit two probit models using the \code{clm} function from the \pkg{ordinal} package (which should already be loaded). The first model only includes a linear term for $X_1$ and $X_2$, while the second model also includes the interaction $X_1 X_2$.
 \begin{example}
 fit1 <- clm(y ~ x1 + x2, data = df4, link = "probit")  # wrong model
 fit2 <- clm(y ~ x1*x2, data = df4, link = "probit")  # correct model
