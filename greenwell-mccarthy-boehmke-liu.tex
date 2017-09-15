@@ -473,33 +473,34 @@ grid.arrange(p1, p2, nrow = 2)
 \section{Bitterness of wine}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Real data example coming soon!
+\citet{randal-analysis-1989} performed an experiment on factors determining the bitterness of wine. There are two binary treatment factors, temperature and contact (between juice and skin) where controlled while crushing the grapes during wine production. Nine judges each assessed wine from two bottles from each of the four treatment conditions; for a total of $n = 72$. The data are available in the \pkg{ordinal} package; see ?\code{ordinal::wine} for details.
 
+\begin{example}
+wine.clm <- clm(rating ~ temp + contact, data = wine, link = "probit")
+\end{example}
 
-% \begin{example}
-% library(ordinal)
-% data(wine, package = "ordinal")
-% wine.clm <- clm(rating ~ temp * contact, data = wine)  # default logit link
-% \end{example}
-% 
-% \begin{example}
-% set.seed(101)  # for reproducibility
-% grid.arrange(
-%   autoplot(wine.clm, nsim = 10, what = "qq"),
-%   autoplot(wine.clm, nsim = 10, what = "fitted"),
-%   autoplot(wine.clm, nsim = 10, what = "cov", x = wine$temp),
-%   autoplot(wine.clm, nsim = 10, what = "cov", x = wine$contact),
-%   ncol = 2
-% )
-% \end{example}
-% 
-% \begin{figure}[!htbp]
-%   \centering
-%   \includegraphics[width=1\textwidth]{wine}
-%   \caption{Residual diagnostic plots for the quality of wine example.}
-%   \label{fig:wine}
-% \end{figure}
-% 
+Since both of the covariates in this model are binary factors, scatterplots are not appropriate for displaying the residual-by-covariate relationships. Instead, the \code{autoplot} function in \code{sure} uses boxplots; a future release is likely to include the additional option for producing nonparametric densities instead for each level of a factor. The code chunk below uses \code{autoplot} along with \code{grid.arrange} to produce some standard residual diagnostic plots. The results are displayed in Figure~\ref{fig:wine}. The Q-Q plot and residual-vs-fitted value plot do not indicate any serious model misspecifications. Furthermore, the boxplots reveal that the medians of the surrogate residuals are very close to zero, and the distribution of the residuals within each level appear to be symmetric and have approximately the same variability (with the exception of a few outliers).
+
+\begin{example}
+set.seed(1225)  # for reproducibility
+grid.arrange(
+  autoplot(wine.clm, nsim = 10, what = "qq"),
+  autoplot(wine.clm, nsim = 10, what = "fitted", alpha = 0.5),
+  autoplot(wine.clm, nsim = 10, what = "covariate", x = wine$temp, 
+           xlab = "Temperature"),
+  autoplot(wine.clm, nsim = 10, what = "covariate", x = wine$contact,
+           xlab = "Contact"),
+  ncol = 2
+)
+\end{example}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=1\textwidth]{wine}
+  \caption{Residual diagnostic plots for the quality of wine example.}
+  \label{fig:wine}
+\end{figure}
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

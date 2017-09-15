@@ -217,16 +217,18 @@ dev.off()
 ################################################################################
 
 data(wine, package = "ordinal")
-wine.clm <- clm(rating ~ temp * contact, data = wine)  # default logit link
+wine.clm <- clm(rating ~ temp + contact, data = wine, link = "probit")
 
 # Figure ?
-pdf(file = "manuscript\\wine.pdf", width = 8, height = 8)
-set.seed(101)  # for reproducibility
+pdf(file = "wine.pdf", width = 7, height = 5)
+set.seed(1225)  # for reproducibility
 grid.arrange(
   autoplot(wine.clm, nsim = 10, what = "qq"),
-  autoplot(wine.clm, nsim = 10, what = "fitted"),
-  autoplot(wine.clm, nsim = 10, what = "cov", x = wine$temp),
-  autoplot(wine.clm, nsim = 10, what = "cov", x = wine$contact),
+  autoplot(wine.clm, nsim = 10, what = "fitted", alpha = 0.5),
+  autoplot(wine.clm, nsim = 10, what = "covariate", x = wine$temp, 
+           xlab = "Temperature"),
+  autoplot(wine.clm, nsim = 10, what = "covariate", x = wine$contact,
+           xlab = "Contact"),
   ncol = 2
 )
 dev.off()
