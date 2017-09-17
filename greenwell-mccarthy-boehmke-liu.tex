@@ -438,13 +438,13 @@ For illustration, we generated $n = 2000$ observations from the following ordere
 \begin{equation*}
   Pr\left(\mathcal{Y} \le j\right) = \Phi\left(\alpha_j + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_1 X_2\right), \quad j = 1, 2, 3, 4,
 \end{equation*}
-where $\alpha_1 = -16$, $\alpha_2 = -12$, $\alpha_3 = -8$, $\beta_1 = 8$, $\beta_2 = 3$, $\beta_3 = 5$, $X_1 \sim \mathcal{U}\left(1, 7\right)$, and $X_2$ is a factor with levels \code{Treatment} and \code{Control}. These simulated data are available in the \code{df4} data frame loaded with the \pkg{sure} package; see \code{?df4} for details. Below, we fit two probit models using the \code{clm} function from the \pkg{ordinal} package (which should already be loaded). The first model only includes a linear term for $X_1$ and $X_2$, while the second model also includes the interaction $X_1 X_2$.
+where $\alpha_1 = -16$, $\alpha_2 = -12$, $\alpha_3 = -8$, $\beta_1 = 8$, $\beta_2 = 3$, $\beta_3 = 5$, $X_1 \sim \mathcal{U}\left(1, 7\right)$, and $X_2$ is a factor with levels \code{Treatment} and \code{Control}. These simulated data are available in the \code{df4} data frame loaded with the \pkg{sure} package; see \code{?df4} for details. Below, we fit two probit models using the \code{clm} function from the \pkg{ordinal} package (which should already be loaded). The first model only corresponds to the simulated control group, while the second model corresponds to the treatment group.
 \begin{example}
-fit1 <- clm(y ~ x1 + x2, data = df4, link = "probit")  # wrong model
-fit2 <- clm(y ~ x1*x2, data = df4, link = "probit")  # correct model
+fit1 <- clm(y ~ x1, data = df4[df4$x2 == "Control", ], link = "probit")
+fit2 <- clm(y ~ x1, data = df4[df4$x2 == "Treatment", ], link = "probit")
 \end{example}
 
-If the true model contains an interaction term $X_1 X_2$, but the fitted model does not include it, we can detect this misspecification using the surrogate residuals. We simply plot $R_S$ versus $X_1$ for treatment group, and compare it to the plot of $R_S$ versus $X_1$ for the controls. The trends in these two plots should be different. Below, we use \code{ggplot} along with the \code{resids} function to construct such a plot for both fitted models. (\strong{Note:} we used $B = 25$ bootstrap simulations to reduce the sample variability in the plots.) The results are displayed in Figure~\ref{fig:interaction}. The top row of Figure~\ref{fig:interaction} clearly shows some deviations from the true model, whereas the bottom row shows no signs of serious departures from the true model.
+If the true model contains an interaction term $X_1 X_2$, but the fitted model does not include it, we can detect this misspecification using the surrogate residuals. We simply plot $R_S$ versus $X_1$ for treatment group, and compare it to the plot of $R_S$ versus $X_1$ for the controls---or better yet, we can just use the surrogate response $S$ instead of $R_S$. The trends in these two plots should be different. Below, we use \code{ggplot} along with the \code{sure} function to construct such a plot for both fitted models. (\strong{Note:} we used $B = 25$ bootstrap simulations to reduce the sample variability in the plots.) The results are displayed in Figure~\ref{fig:interaction}. The plot indicates a negative association between $x_1$ and the outcome within the control group, and a positive association between $x_1$ and the treatment group (i.e., an interaction between $x_1$ and $x_2$).
 \begin{example}
 # Figure ?
 set.seed(1105)  # for reproducibility
@@ -464,7 +464,7 @@ grid.arrange(p1, p2, nrow = 2)
 \begin{figure}[!htbp]
   \centering
   \includegraphics[width=1\textwidth]{interaction}
-  \caption{Residual diagnostic plots for the simulated interaction data. \textit{Top row}: Surrogate residuals from the fitted model with no interaction term. \textit{Bottom row} Surrogate residuals from the fitted model including an interaction term.}
+  \caption{Scatterplot of the surrogate response $S$ versus $x_1$ with a nonparametric smooth (red line). \textit{Left}: Control group. \textit{Right}: Treatment group.}
   \label{fig:interaction}
 \end{figure}
 

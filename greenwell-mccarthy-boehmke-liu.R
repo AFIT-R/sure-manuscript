@@ -167,12 +167,13 @@ dev.off()
 # Interaction detection
 ################################################################################
 
-# Function to simulate interaction data
+# Function to simulate data from an ordered probit model with an interaction
+# term
 simInteractionData <- function(n = 2000) {
-  threshold <- c(40, 60, 80)
+  threshold <- c(0, 20, 40)
   x1 <- runif(n, min = 1, max = 7)
   x2 <- gl(2, n / 2, labels = c("Control", "Treatment"))
-  z <- 16 + 8 * x1 + 3 * (x2 == "Treatment") + 5 * x1 * (x2 == "Treatment") + 
+  z <- 16 - 5 * x1 + 3 * (x2 == "Treatment") + 10 * x1 * (x2 == "Treatment") + 
     rnorm(n)
   y <- sapply(z, FUN = function(zz) {
     ordinal.value <- 1
@@ -189,26 +190,30 @@ simInteractionData <- function(n = 2000) {
 # Simulate data
 set.seed(977)
 df4 <- simInteractionData(n = 2000)
-table(df4$y)
-
-library(ordinal)
-fit1 <- clm(y ~ x1 + x2, data = df4, link = "probit")  # wrong model
-fit2 <- clm(y ~ x1*x2, data = df4, link = "probit")  # correct model
 
 library(ggplot2)
+library(ordinal)
+library(sure)
+
+fit1 <- clm(y ~ x1, data = df4[df4$x2 == "Control", ], link = "probit")
+fit2 <- clm(y ~ x1, data = df4[df4$x2 == "Treatment", ], link = "probit")
+fit3 <- clm(y ~ x1*x2, data = df4, link = "probit")
+
 set.seed(1105)
-p1 <- ggplot(cbind(df4, res = resids(fit1, nsim = 25)), aes(x = x1, y = res)) +
+d1 <- cbind(df4[df4$x2 == "Control",], sur = surrogate(fit1, nsim = 25))
+d2 <- cbind(df4[df4$x2 == "Treatment", ], sur = surrogate(fit2, nsim = 25))
+p1 <- ggplot(d1, aes(x = x1, y = sur)) +
   geom_point(alpha = 0.5) +
   geom_smooth(se = FALSE, size = 1.2, color = "red") +
-  facet_wrap( ~ x2) +
-  ylab("Surrogate residual")
-p2 <- ggplot(cbind(df4, res = resids(fit2, nsim = 25)), aes(x = x1, y = res)) +
+  ylab("Surrogate response") +
+  xlab(expression(paste(x[1], " (control)")))
+p2 <- ggplot(d2, aes(x = x1, y = sur)) +
   geom_point(alpha = 0.5) +
   geom_smooth(se = FALSE, size = 1.2, color = "red") +
-  facet_wrap( ~ x2) +
-  ylab("Surrogate residual")
-pdf(file = "interaction.pdf", width = 7, height = 7)
-grid.arrange(p1, p2, nrow = 2)
+  ylab("Surrogate response") + 
+  xlab(expression(paste(x[1], " (treatment)")))
+pdf(file = "interaction.pdf", width = 8, height = 4)
+grid.arrange(p1, p2, ncol = 2)
 dev.off()
 
 
