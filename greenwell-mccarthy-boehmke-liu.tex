@@ -149,7 +149,7 @@ The \pkg{sure} package supports a variety of R packages for fitting cumulative l
                     & \code{vgam} & cumulative link     & $Pr\left\{\mathcal{Y} \le j\right\}$ \\
       \bottomrule
   \end{tabular}
-  \caption{Ordinal regression modelling packages supported by \pkg{sure} and the corresponding parameterization they use for fitting cumulative link models. \strong{Note:} by default, \code{vglm} uses the same parameterization as in Equation~\eqref{eqn:clm}. This can be reversed by setting \code{reverse = TRUE}.}
+  \caption{Ordinal regression modelling packages supported by \pkg{sure} and the corresponding parameterization they use for fitting cumulative link models. \strong{Note:} by default, \code{vglm} uses the same parameterization as in Equation~\eqref{eqn:clm}. This can be reversed by setting \code{reverse = TRUE} in the \code{family} argument.}
   \label{tab:pkgs}
 \end{table}
 
@@ -202,7 +202,7 @@ grid.arrange(p1, p2, ncol = 2)  # Figure 1
 \begin{figure}[!htbp]
   \centering
   \includegraphics[width=1\textwidth]{quadratic-correct-sbs}
-  \caption{SBS residual plots for the (correctly specified) probit model fit to the \code{df1} data set. \textit{Left}: Residual vs. covariate plot. \textit{Right}: Q-Q plot of the residuals. Nonparametric smooths are indicated by red curves.}
+  \caption{SBS residual plots for the (correctly specified) probit model fit to the \code{df1} data set. \textit{Left}: Residual vs. covariate plot with a nonparametric smooth (red curve). \textit{Right}: Q-Q plot of the residuals.}
   \label{fig:quadratic-correct-sbs}
 \end{figure}
 
@@ -222,7 +222,7 @@ grid.arrange(p1, p2, ncol = 2)  # Figure 2
 \begin{figure}[!htbp]
   \centering
   \includegraphics[width=1\textwidth]{quadratic-correct-surrogate}
-  \caption{surrogate residual plots for the (correctly specified) probit model fit to the \code{df1} data set. \textit{Left}: Residual vs. covariate plot. \textit{Right}: Q-Q plot of the residuals. Nonparametric smooths are indicated by red curves.}
+  \caption{surrogate residual plots for the (correctly specified) probit model fit to the \code{df1} data set. \textit{Left}: Residual vs. covariate plot with a nonparametric smooth (red curve). \textit{Right}: Q-Q plot of the residuals.}
   \label{fig:quadratic-correct-surrogate}
 \end{figure}
 
@@ -241,7 +241,7 @@ The SBS residuals gives some indication of a misspecified mean structure, but th
 \begin{figure}[!htbp]
   \centering
   \includegraphics[width=1\textwidth]{quadratic}
-  \caption{Residual-vs-covariate plots for a probit model with a misspecified mean structure fit to the simulated data from model \eqref{eqn:quadratic}. \textit{Left}: Surrogate residuals. \textit{Right}: SBS residuals. Nonparametric smooths are indicated by red curves.}
+  \caption{Residual-vs-covariate plots with nonparametric smooths (red curves) for a probit model with a misspecified mean structure fit to the simulated data from model \eqref{eqn:quadratic}. \textit{Left}: Surrogate residuals. \textit{Right}: SBS residuals.}
   \label{fig:quadratic}
 \end{figure}
 
@@ -288,7 +288,7 @@ In Figure~\ref{fig:heteroscedasticity}, it is clear from the plot of the surroga
 \begin{figure}[!htbp]
   \centering
   \includegraphics[width=1\textwidth]{heteroscedasticity}
-  \caption{Residual vs. covariate plots for the simulated data. \textit{Left}: Surrogate residuals. \textit{Right}: SBS residuals.}
+  \caption{Residual vs. covariate plots with nonparametric smooths (red curves) for the simulated heteroscedastic data. \textit{Left}: Surrogate residuals. \textit{Right}: SBS residuals.}
   \label{fig:heteroscedasticity}
 \end{figure}
 
@@ -312,7 +312,7 @@ grid.arrange(p1, p2, ncol = 2)  # Figure 5
 \begin{figure}[!htbp]
   \centering
   \includegraphics[width=1\textwidth]{heteroscedasticity2}
-  \caption{Residual vs. covariate plots from a VGAM fit to the simulated data. \textit{Left}: Jittering on the probability scale (default). \textit{Right}: Jittering on the response scale.}
+  \caption{Residual vs. covariate plots with nonparametric smooths (red curves) from a vector generalized additive model fit to the simulated heteroscedastic data. \textit{Left}: Jittering on the probability scale (default). \textit{Right}: Jittering on the response scale.}
   \label{fig:heteroscedasticity2}
 \end{figure}
 
@@ -409,7 +409,7 @@ From Figure~\ref{fig:proportionality}, it is clear that $\beta_1 - \beta_2 \ne 0
 \begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.7\textwidth]{proportionality}
-  \caption{Scatterplot of $D = S_1 - S_2$ vs. $x$. A nonparametric smooth is represented by the red curve.}
+  \caption{Scatterplot of $D = S_1 - S_2$ vs. $x$ with a nonparametric smooth (red curve).}
   \label{fig:proportionality}
 \end{figure}
 
