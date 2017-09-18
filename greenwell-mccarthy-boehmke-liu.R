@@ -41,6 +41,7 @@ autoplot(fit.polr, what = "qq")  # same as top right of Figure 1
 
 # Residual vs. covariate plots when quadratic term is removed from the model
 fit2.polr <- update(fit.polr, y ~ x)
+set.seed(1055)
 p1 <- autoplot(fit2.polr, what = "covariate", x = df1$x, alpha = 0.5) +
   xlab("x") +
   ylab("Surrogate residual") +
@@ -103,6 +104,7 @@ fit.loglog <- polr(y ~ x + I(x ^ 2), data = df3, method = "loglog")  # correct l
 fit.cloglog <- polr(y ~ x + I(x ^ 2), data = df3, method = "cloglog")
 
 # Construct Q-Q plots of the surrogate residuals for each model
+set.seed(1056)  # for reproducibility
 p1 <- autoplot(fit.probit, nsim = 100, what = "qq")
 p2 <- autoplot(fit.logistic, nsim = 100, what = "qq")
 p3 <- autoplot(fit.loglog, nsim = 100, what = "qq")
@@ -161,6 +163,7 @@ fit1 <- vglm(y ~ x, data = df4[1:2000, ],
 fit2 <- update(fit1, data = df4[2001:4000, ])
 
 # Generate surrogate response values
+set.seed(8671)  # for reproducibility
 s1 <- surrogate(fit1)
 s2 <- surrogate(fit2)
 
