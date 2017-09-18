@@ -183,26 +183,20 @@ fit.polr <- polr(y ~ x + I(x ^ 2), data = df1, method = "probit")
 
 The code chunk below obtains the SBS residuals \eqref{eqn:pres} from the previously fitted probit model \code{fit.polr} using the \pkg{PResiduals} package and constructs a couple of diagnostic plots. The results are displayed in Figure~\ref{fig:quadratic-correct-sbs}. 
 \begin{example}
-# Load required package(s)
-library(PResiduals)
-
 # Obtain the SBS/probability-scale residuals
+library(PResiduals)
 pres <- presid(fit.polr)
 
-# Residual vs. covariate plot
+# Residual vs. covariate plot and Q-Q plot
 p1 <- ggplot(data.frame(x = df1$x, y = pres), aes(x, y)) +
-  geom_point(alpha = 0.5) +
+  geom_point(color = "#444444", shape = 19, size = 2, alpha = 0.5) +
   geom_smooth(color = "red", se = FALSE) +
   ylab("Probability-scale residual")
-  
-# Q-Q plot of the residuals
 p2 <- ggplot(data.frame(y = pres), aes(sample = y)) +
   stat_qq(distribution = qunif, dparams = list(min = -1, max = 1), alpha = 0.5) +
   xlab("Sample quantile") +
   ylab("Theoretical quantile")
-
-# Figure 1
-grid.arrange(p1, p2, ncol = 2)
+grid.arrange(p1, p2, ncol = 2)  # Figure 1
 \end{example}
 (\strong{Note:} the reference distribution for the SBS residual is the $\mathcal{U}\left(-1, 1\right)$ distribution.) As can be seen in Figure~\ref{fig:quadratic-correct-sbs}, the SBS residuals, which are inherently discrete, often display unusual patterns in diagnostic plots, making them less useful as a diagnostic tool. There is a pattern for each of the $J = 4$ classes!
 \begin{figure}[!htbp]
@@ -212,24 +206,18 @@ grid.arrange(p1, p2, ncol = 2)
   \label{fig:quadratic-correct-sbs}
 \end{figure}
 
-Similarly, we can use the \code{resids} function in package \pkg{sure} to obtain the surrogate residuals discussed in Section~\ref{sec:surrogate}. This is illustrated in the following code chunk. the results are displayed in Figure~\ref{fig:quadratic-correct-surrogate}.
+Similarly, we can use the \code{resids} function in package \pkg{sure} to obtain the surrogate residuals discussed in Section~\ref{sec:surrogate}. This is illustrated in the following code chunk. the results are displayed in Figure~\ref{fig:quadratic-correct-surrogate}. (\strong{Note:} since the surrogate residuals are based on random sampling, we specify the seed via the \code{set.seed} function throughout this paper for reproducibility.)
 \begin{example}
-# Load required package(s)
-library(ggplot2)
-library(sure)
-
 # Obtain surrogate residuals
+library(ggplot2)  # needed for autoplot function
+library(sure)
 set.seed(101)  # for reproducibility
 sres <- resids(fit.polr)
 
-# Residual vs. covariate plot
+# Residual vs. covariate plot and Q-Q plot
 p1 <- autoplot(sres, what = "covariate", x = df1$x, xlab = "x")
-
-# Q-Q plot of the residuals
 p2 <- autoplot(sres, what = "qq", distribution = pnorm)
-
-# Figure ?
-grid.arrange(p1, p2, ncol = 2)
+grid.arrange(p1, p2, ncol = 2)  # Figure 2
 \end{example}
 \begin{figure}[!htbp]
   \centering
@@ -291,12 +279,10 @@ sres <- resids(fit.orm)  # surrogate residuals
 # Residual vs. covariate plots
 p1 <- autoplot(sres, what = "covariate", x = df2$x, xlab = "x")
 p2 <- ggplot(data.frame(x = df2$x, y = presid(fit.orm)), aes(x, y)) +
-  geom_point(size = 2, alpha = 0.25) +
+  geom_point(color = "#444444", shape = 19, size = 2, alpha = 0.25) +
   geom_smooth(col = "red", se = FALSE) +
   ylab("Probability scale residual")
-  
-# Figure ?
-grid.arrange(p1, p2, ncol = 2)
+grid.arrange(p1, p2, ncol = 2)  # Figure 4
 \end{example}
 
 In Figure~\ref{fig:heteroscedasticity}, it is clear from the plot of the surrogate residuals (left side of Figure~\ref{fig:heteroscedasticity}) that the variance increases with $X$, a clear sign of heteroscedasticity. As a matter fact, the plot suggests that the true link function has a varying scale parameter, $\sigma = \sigma\left(\boldsymbol{X}\right)$. The plot of the SBS residuals (right side of Figure~\ref{fig:heteroscedasticity}), on the other hand, gives no indication of an issue with nonconstant variance.
@@ -322,7 +308,7 @@ p1 <- autoplot(fit.vgam, what = "covariate", x = df2$x, method = "jitter",
                xlab = "x")
 p2 <- autoplot(fit.vgam, what = "covariate", x = df2$x, method = "jitter",
                jitter.scale = "response", xlab = "x")
-grid.arrange(p1, p2, ncol = 2)  # Figure ?
+grid.arrange(p1, p2, ncol = 2)  # Figure 5
 \end{example}
 
 \begin{figure}[!htbp]
@@ -357,7 +343,7 @@ p2 <- autoplot(fit.logistic, nsim = 100, what = "qq")
 p3 <- autoplot(fit.loglog, nsim = 100, what = "qq")
 p4 <-  autoplot(fit.cloglog, nsim = 100, what = "qq")
 
-# Figure ?
+# Figure 6
 grid.arrange(p1, p2, p3, p4, ncol = 2)  # bottom left plot is correct model
 \end{example}
 From the Q-Q plots in Figure~\ref{fig:link}, it is clear the the model with the log-log link (which corresponds to gumbel errors in the latent variable formulation) is the most appropriate, while the other plots indicate deviations from the hypothesized model.
@@ -373,7 +359,7 @@ Alternatively, we could also use the surrogate residuals to make use of existing
 
 Currently, the \code{gof} function supports three goodness-of-fit tests: the Kolmogorov-Smirnov test (\code{test = "ks"}), the Anderson-Darling test (\code{test = "ad"}), and the Cramer-Von Mises test (\code{test = "cvm"}). Below, we use the \code{gof} function to simulate $p$-values from the Anderson-Darling test for each of the four models; we also set \code{nsim} to 100 to produce smoother plots and reduce the sampling error induced by the surrogate procedure. The \code{plot} method is then used to display the empirical distribution function (EDF) of the simulated $p$-values. A good fit would imply uniformly distributed $p$-values; hence, the EDF would be relatively straight with a slope of one. The results, which are displayed in Figure~\ref{fig:gof}, agree with the Q-Q plots from Figure~\ref{fig:link} in that the log-log link is the most appropriate for these data. (\strong{Note:} that the plotting method for \code{"gof"} objects uses base R graphics; hence, we can use the \code{par} function to set various graphical parameters.)
 \begin{example}
-# Figure ?
+# Figure 7
 par(mfrow = c(2, 2), mar = c(2, 4, 2, 2) + 0.1) 
 set.seed(8491)  # for reproducibility
 plot(gof(fit.probit, nsim = 100, test = "ad"), main = "")
@@ -398,11 +384,11 @@ An important feature of the cumulative link model \eqref{eqn:clm} is the proport
 
 To illustrate, we generated 2000 observations from each of the following probit models
 \begin{equation*}
-  Pr\left(\mathcal{Y} \le j\right) = \Phi\left(\alpha_j + \beta_1 X\right), \quad j = 1, 2, 3, \quad \textrm{and} \quad Pr\left(\mathcal{Y} \le j\right) = \Phi\left(\alpha_j + \beta_2 X\right), \quad j = 4, 5, 6,
+  Pr\left(\mathcal{Y} \le j\right) = \Phi\left(\alpha_j + \beta_1 x\right), \quad j = 1, 2, 3, \quad \textrm{and} \quad Pr\left(\mathcal{Y} \le j\right) = \Phi\left(\alpha_j + \beta_2 x\right), \quad j = 4, 5, 6,
 \end{equation*}
 where $\alpha_1 = -1.5$, $\alpha_2 = 0$, $\alpha_3 = 1$, $\alpha_4 = 3$, $\beta_1 = 1$, and $\beta_2 = 1.5$. (The R code for generating the data can be made available upon request.) 
 
-Checking the proportionality assumption here amounts to checking whether or not $\beta_1 - \beta_2 = 0$. As outlined in \citet{residuals-liu-2017}, we can generate surrogates $S_1 \sim \mathcal{N}\left(-\beta_1 X, 1\right)$ and $S_s \sim \mathcal{N}\left(-\beta_2 X, 1\right)$, both conditional on $X$. We then define the difference $D = S_2 - S_1$ which, conditional on $X$, follows a $\mathcal{N}\left(\left(\beta_1 - \beta_2\right) X, 1\right)$ distribution. If $\beta_1 - \beta_2 = 0$, then $D$ should be independent of $X$. This can be easily checked by plotting $D$ against $X$. Below, we use the \code{surrogate} function to generate the surrogate response values directly (as opposed to the residuals) and generate the $D$ vs. $X$ plot shown in Figure~\ref{fig:proportionality}.
+Checking the proportionality assumption here amounts to checking whether or not $\beta_1 - \beta_2 = 0$. As outlined in \citet{residuals-liu-2017}, we can generate surrogates $S_1 \sim \mathcal{N}\left(-\beta_1 x, 1\right)$ and $S_s \sim \mathcal{N}\left(-\beta_2 x, 1\right)$, both conditional on $x$. We then define the difference $D = S_2 - S_1$ which, conditional on $x$, follows a $\mathcal{N}\left(\left(\beta_1 - \beta_2\right) x, 1\right)$ distribution. If $\beta_1 - \beta_2 = 0$, then $D$ should be independent of $x$. This can be easily checked by plotting $D$ against $x$. Below, we use the \code{surrogate} function to generate the surrogate response values directly (as opposed to the residuals) and generate the $D$ vs. $x$ plot shown in Figure~\ref{fig:proportionality}.
 \begin{example}
 # Fit separate models (VGAM should already be loaded)
 fit1 <- vglm(y ~ x, data = df4[1:2000, ], 
@@ -413,9 +399,9 @@ fit2 <- update(fit1, data = df4[2001:4000, ])
 s1 <- surrogate(fit1)
 s2 <- surrogate(fit2)
 
-# Figure ?
-ggplot(data.frame(D = s1 - s2, X = df4[1:2000, ]$x) , aes(x = X, y = D)) +
-  geom_point() +
+# Figure 8
+ggplot(data.frame(D = s1 - s2, x = df4[1:2000, ]$x) , aes(x = x, y = D)) +
+  geom_point(color = "#444444", shape = 19, size = 2) +
   geom_smooth(se = FALSE)
 \end{example}
 From Figure~\ref{fig:proportionality}, it is clear that $\beta_1 - \beta_2 \ne 0$; hence, the proportionality assumption does not hold.
@@ -423,7 +409,7 @@ From Figure~\ref{fig:proportionality}, it is clear that $\beta_1 - \beta_2 \ne 0
 \begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.7\textwidth]{proportionality}
-  \caption{Scatterplot of $D = S_1 - S_2$ vs. $X$. A nonparametric smooth is represented by the red curve.}
+  \caption{Scatterplot of $D = S_1 - S_2$ vs. $x$. A nonparametric smooth is represented by the red curve.}
   \label{fig:proportionality}
 \end{figure}
 
@@ -436,29 +422,30 @@ A common challenge in model building is determining whether or not there are imp
 
 For illustration, we generated $n = 2000$ observations from the following ordered probit model
 \begin{equation*}
-  Pr\left(\mathcal{Y} \le j\right) = \Phi\left(\alpha_j + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_1 X_2\right), \quad j = 1, 2, 3, 4,
+  Pr\left(\mathcal{Y} \le j\right) = \Phi\left(\alpha_j + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_1 x_2\right), \quad j = 1, 2, 3, 4,
 \end{equation*}
-where $\alpha_1 = -16$, $\alpha_2 = -12$, $\alpha_3 = -8$, $\beta_1 = 8$, $\beta_2 = 3$, $\beta_3 = 5$, $X_1 \sim \mathcal{U}\left(1, 7\right)$, and $X_2$ is a factor with levels \code{Treatment} and \code{Control}. These simulated data are available in the \code{df4} data frame loaded with the \pkg{sure} package; see \code{?df4} for details. Below, we fit two probit models using the \code{clm} function from the \pkg{ordinal} package (which should already be loaded). The first model only corresponds to the simulated control group, while the second model corresponds to the treatment group.
+where $\alpha_1 = -16$, $\alpha_2 = -12$, $\alpha_3 = -8$, $\beta_1 = 8$, $\beta_2 = 3$, $\beta_3 = 5$, $x_1 \sim \mathcal{U}\left(1, 7\right)$, and $x_2$ is a factor with levels \code{Treatment} and \code{Control}. These simulated data are available in the \code{df4} data frame loaded with the \pkg{sure} package; see \code{?df4} for details. Below, we fit two probit models using the \code{clm} function from the \pkg{ordinal} package (which should already be loaded). The first model only corresponds to the simulated control group, while the second model corresponds to the treatment group.
 \begin{example}
 fit1 <- clm(y ~ x1, data = df4[df4$x2 == "Control", ], link = "probit")
 fit2 <- clm(y ~ x1, data = df4[df4$x2 == "Treatment", ], link = "probit")
 \end{example}
 
-If the true model contains an interaction term $X_1 X_2$, but the fitted model does not include it, we can detect this misspecification using the surrogate residuals. We simply plot $R_S$ versus $X_1$ for treatment group, and compare it to the plot of $R_S$ versus $X_1$ for the controls---or better yet, we can just use the surrogate response $S$ instead of $R_S$. The trends in these two plots should be different. Below, we use \code{ggplot} along with the \code{sure} function to construct such a plot for both fitted models. (\strong{Note:} we used $B = 25$ bootstrap simulations to reduce the sample variability in the plots.) The results are displayed in Figure~\ref{fig:interaction}. The plot indicates a negative association between $x_1$ and the outcome within the control group, and a positive association between $x_1$ and the treatment group (i.e., an interaction between $x_1$ and $x_2$).
+If the true model contains an interaction term $x_1 x_2$, but the fitted model does not include it, we can detect this misspecification using the surrogate residuals. We simply plot $R_S$ versus $x_1$ for treatment group, and compare it to the plot of $R_S$ versus $x_1$ for the controls---or better yet, we can just use the surrogate response $S$ instead of $R_S$. The trends in these two plots should be different. Below, we use \code{ggplot} along with the \code{sure} function to construct such a plot for both fitted models. (\strong{Note:} we used $B = 25$ bootstrap simulations to reduce the sample variability in the plots.) The results are displayed in Figure~\ref{fig:interaction}. The plot indicates a negative association between $x_1$ and the outcome within the control group, and a positive association between $x_1$ and the treatment group (i.e., an interaction between $x_1$ and $x_2$).
 \begin{example}
-# Figure ?
 set.seed(1105)  # for reproducibility
-p1 <- ggplot(cbind(df4, res = resids(fit1, nsim = 25)), aes(x = x1, y = res)) +
-  geom_point(alpha = 0.5) +
+d1 <- cbind(df4[df4$x2 == "Control",], sur = surrogate(fit1, nsim = 25))
+d2 <- cbind(df4[df4$x2 == "Treatment", ], sur = surrogate(fit2, nsim = 25))
+p1 <- ggplot(d1, aes(x = x1, y = sur)) +
+  geom_point(color = "#444444", shape = 19, size = 2, alpha = 0.5) +
   geom_smooth(se = FALSE, size = 1.2, color = "red") +
-  facet_wrap( ~ x2) +
-  ylab("Surrogate residual")
-p2 <- ggplot(cbind(df4, res = resids(fit2, nsim = 25)), aes(x = x1, y = res)) +
-  geom_point(alpha = 0.5) +
+  ylab("Surrogate response") +
+  xlab(expression(paste(x[1], " (control)")))
+p2 <- ggplot(d2, aes(x = x1, y = sur)) +
+  geom_point(color = "#444444", shape = 19, size = 2, alpha = 0.5) +
   geom_smooth(se = FALSE, size = 1.2, color = "red") +
-  facet_wrap( ~ x2) +
-  ylab("Surrogate residual")
-grid.arrange(p1, p2, nrow = 2)
+  ylab("Surrogate response") + 
+  xlab(expression(paste(x[1], " (treatment)")))
+grid.arrange(p1, p2, nrow = 2)  # Figure 9
 \end{example}
 
 \begin{figure}[!htbp]
@@ -483,7 +470,7 @@ Since both of the covariates in this model are binary factors, scatterplots are 
 
 \begin{example}
 set.seed(1225)  # for reproducibility
-grid.arrange(
+grid.arrange(  # Figure 10
   autoplot(wine.clm, nsim = 10, what = "qq"),
   autoplot(wine.clm, nsim = 10, what = "fitted", alpha = 0.5),
   autoplot(wine.clm, nsim = 10, what = "covariate", x = wine$temp, 
