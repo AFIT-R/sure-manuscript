@@ -15,17 +15,17 @@ Residual diagnostics is an important topic in the classroom, but it is less ofte
 
 Categorical outcomes are encountered frequently in practice across different fields. For example, in medical studies, the outcome of interest is often binary (e.g., presence or absence of a particular disease after applying a treatment). A binary outcome can be viewed as a special case of an ordinal outcome; that is, a categorical outcome having a natural ordering. For instance, in an opinion poll, the response may be satisfaction, with categories low, medium, and high. In this case, the response is ordered: low $<$ medium $<$ high.
 
-% Logistic and probit regression are popular choices for modelling a binary outcome. The surrogate approach to constructing residuals actually applies to a wide class of general models of the form 
-% \begin{equation*}
-%   \mathcal{Y} \sim F_a\left(y; \boldsymbol{X}, \boldsymbol{\beta}\right)
-% \end{equation*}
-% where $F_a\left(\cdot\right)$ is a discrete cumulative distribution function. This includes binary regression as a special case. For example, the probit model has
-% \begin{equation*}
-%   \mathcal{Y} \sim bernoulli\left[\Phi\left(\boldsymbol{x}^\top\boldsymbol{\beta}\right)\right],
-% \end{equation*}
-% where $\Phi\left(\cdot\right)$ is the cumulative distribution function for the standard normal distribution.
+Logistic and probit regression are popular choices for modelling a binary outcome. Although this paper focuses on models for ordinal responses, the surrogate approach to constructing residuals actually applies to a wide class of general models of the form
+\begin{equation*}
+  \mathcal{Y} \sim F_a\left(y; \boldsymbol{X}, \boldsymbol{\beta}\right)
+\end{equation*}
+where $F_a\left(\cdot\right)$ is a discrete cumulative distribution function. This includes binary regression as a special case. For example, the probit model has
+\begin{equation*}
+  \mathcal{Y} \sim Bernoulli\left[\Phi\left(\boldsymbol{x}^\top\boldsymbol{\beta}\right)\right],
+\end{equation*}
+where $\Phi\left(\cdot\right)$ is the cumulative distribution function for the standard normal distribution.
 
-The \dfn{cumulative link} model is a natural choice for modelling a binary or ordinal outcome. Consider an ordinal categorical outcome $\mathcal{Y}$ with ordered categories $1 < 2 < \dots < J$. In a cumulative link model, the cumulative probabilities are linked to the predictors according to
+The \dfn{cumulative link model} is a natural choice for modelling a binary or ordinal outcome. Consider an ordinal categorical outcome $\mathcal{Y}$ with ordered categories $1 < 2 < \dots < J$. In a cumulative link model, the cumulative probabilities are linked to the predictors according to
 \begin{equation}
 \label{eqn:clm}
   G^{-1}\left(\Pr\left\{\mathcal{Y} \le j\right\}\right) = \alpha_j + f\left(\boldsymbol{X}, \boldsymbol{\beta}\right),
