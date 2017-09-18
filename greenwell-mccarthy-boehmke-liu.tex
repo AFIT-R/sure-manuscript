@@ -175,6 +175,7 @@ For illustration, the data frame \code{df1} contains $n = 2000$ observations fro
 where $\alpha_1 = -16$, $\alpha_2 = -12$, $\alpha_3 = -8$, $\beta_1 = 8$, $\beta_2 = -1$, and $X \sim \mathcal{U}\left(1, 7\right)$. These simulated data are available in the \code{df1} data frame from the \pkg{sure} package and are loaded automatically with the package; see \code{?df1} for details. Below, we fit a (correctly specified) probit model using the \code{polr} function from the \pkg{MASS} package.
 \begin{example}
 # Fit a cumulative link model with probit link
+library(sure)  # for residual function and sample data sets
 library(MASS)  # for polr function
 fit.polr <- polr(y ~ x + I(x ^ 2), data = df1, method = "probit")
 \end{example}
@@ -186,6 +187,7 @@ library(PResiduals)
 pres <- presid(fit.polr)
 
 # Residual vs. covariate plot and Q-Q plot
+library(ggplot2)  # for plotting
 p1 <- ggplot(data.frame(x = df1$x, y = pres), aes(x, y)) +
   geom_point(color = "#444444", shape = 19, size = 2, alpha = 0.5) +
   geom_smooth(color = "red", se = FALSE) +
@@ -398,7 +400,7 @@ s2 <- surrogate(fit2)
 # Figure 8
 ggplot(data.frame(D = s1 - s2, x = df4[1:2000, ]$x) , aes(x = x, y = D)) +
   geom_point(color = "#444444", shape = 19, size = 2) +
-  geom_smooth(se = FALSE)
+  geom_smooth(se = FALSE, size = 1.2, color = "red")
 \end{example}
 From Figure~\ref{fig:proportionality}, it is clear that $\beta_1 - \beta_2 \ne 0$; hence, the proportionality assumption does not hold.
 
@@ -460,6 +462,7 @@ grid.arrange(p1, p2, nrow = 2)  # Figure 9
 \citet{randal-analysis-1989} performed an experiment on factors determining the bitterness of wine. There are two binary treatment factors, temperature and contact (between juice and skin) where controlled while crushing the grapes during wine production. Nine judges each assessed wine from two bottles from each of the four treatment conditions; for a total of $n = 72$. The data are available in the \pkg{ordinal} package; see ?\code{ordinal::wine} for details.
 
 \begin{example}
+data(wine, package = "ordinal")  # load wine data set
 wine.clm <- clm(rating ~ temp + contact, data = wine, link = "probit")
 \end{example}
 
