@@ -174,10 +174,8 @@ For illustration, the data frame \code{df1} contains $n = 2000$ observations fro
 \end{equation}
 where $\alpha_1 = -16$, $\alpha_2 = -12$, $\alpha_3 = -8$, $\beta_1 = 8$, $\beta_2 = -1$, and $X \sim \mathcal{U}\left(1, 7\right)$. These simulated data are available in the \code{df1} data frame from the \pkg{sure} package and are loaded automatically with the package; see \code{?df1} for details. Below, we fit a (correctly specified) probit model using the \code{polr} function from the \pkg{MASS} package.
 \begin{example}
-# Load required package(s)
-library(MASS)
-
 # Fit a cumulative link model with probit link
+library(MASS)  # for polr function
 fit.polr <- polr(y ~ x + I(x ^ 2), data = df1, method = "probit")
 \end{example}
 
@@ -263,10 +261,8 @@ Notice how the variability is an increasing function of $X$. These data are avai
 
 The following block of code uses the \code{orm} function from the popular \pkg{rms} package to fit a probit model to the simulated data. \strong{Note:} that we had to set \code{x = TRUE} in the call to \code{orm} in order to use the \code{presid} function later.
 \begin{example}
-# Load required package(s)
-library(rms)
-
 # Fit a cumulative link model with probit link
+library(rms)  # for orm function
 fit.orm <- orm(y ~ x, data = df2, family = "probit", x = TRUE)
 \end{example}
 
@@ -296,7 +292,7 @@ In Figure~\ref{fig:heteroscedasticity}, it is clear from the plot of the surroga
 
 As outlined in Section~\ref{sec:jittering}, the jittering technique is broadly applicable to virtually all parametric and nonparametric models for ordinal responses. To illustrate, the code chunk below uses the \pkg{VGAM} package to fit a \dfn{vector generalized additive} model to the same data using a nonparametric smooth for $x$.
 \begin{example}
-library(VGAM)
+library(VGAM)  # for vgam and vglm functions
 fit.vgam <- vgam(y ~ s(x), family = cumulative(link = probit, parallel = TRUE),
                  data = df2)
 \end{example}
@@ -426,6 +422,7 @@ For illustration, we generated $n = 2000$ observations from the following ordere
 \end{equation*}
 where $\alpha_1 = -16$, $\alpha_2 = -12$, $\alpha_3 = -8$, $\beta_1 = 8$, $\beta_2 = 3$, $\beta_3 = 5$, $x_1 \sim \mathcal{U}\left(1, 7\right)$, and $x_2$ is a factor with levels \code{Treatment} and \code{Control}. These simulated data are available in the \code{df4} data frame loaded with the \pkg{sure} package; see \code{?df4} for details. Below, we fit two probit models using the \code{clm} function from the \pkg{ordinal} package (which should already be loaded). The first model only corresponds to the simulated control group, while the second model corresponds to the treatment group.
 \begin{example}
+library(ordinal)  # for clm function
 fit1 <- clm(y ~ x1, data = df4[df4$x2 == "Control", ], link = "probit")
 fit2 <- clm(y ~ x1, data = df4[df4$x2 == "Treatment", ], link = "probit")
 \end{example}
