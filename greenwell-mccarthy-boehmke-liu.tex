@@ -51,14 +51,14 @@ Common choices for the link function $G^{-1}\left(\cdot\right)$ and the implied 
     \toprule
       Link & Distribution of $\epsilon$ & $G\left(y\right)$ & $G^{-1}\left(p\right)$ \\
       \midrule
-      logit\footnote{This is typically the default link function used by most statistical software.}   & logistic  & $\exp\left(y\right) / \left[1 + \exp\left(y\right)\right]$ & $\log\left[p / \left(1 - p\right)\right]$ \\
+      logit & logistic  & $\exp\left(y\right) / \left[1 + \exp\left(y\right)\right]$ & $\log\left[p / \left(1 - p\right)\right]$ \\
       probit & standard normal & $\Phi\left(y\right)$ & $\Phi^{-1}\left(p\right)$ \\
       log-log & Gumbel (max) & $\exp\left[-\exp\left(-y\right)\right]$ & $-\log\left[-\log\left(p\right)\right]$ \\
       complementary log-log & Gumbel (min) & $1 - \exp\left[-\exp\left(y\right)\right]$ & $\log\left[-\log\left(1 - p\right)\right]$ \\
       cauchit & Cauchy & $\pi^{-1} \arctan\left(y\right) + 1/2$ & $\tan\left(\pi p - \pi / 2\right)$ \\
       \bottomrule
   \end{tabular}
-  \caption{Common link functions.}
+  \caption{Common link functions. \strong{Note:} the logit is typically the default link function used by most statistical software.}
   \label{tab:common}
 \end{table}
 
@@ -145,11 +145,11 @@ The \pkg{sure} package supports a variety of R packages for fitting cumulative l
                     & \code{lrm}  & logistic regression & NA \\
                     & \code{orm}  & cumulative link     & $Pr\left\{\mathcal{Y} \ge j\right\}$ \\
       \pkg{ordinal} & \code{clm}  & cumulative link     & $Pr\left\{\mathcal{Y} \le j\right\}$ \\
-      \pkg{VGAM}    & \code{vglm} & cumulative link     & $Pr\left\{\mathcal{Y} \le j\right\}$\footnote{This is the default parameterization used by \code{vglm}. This can be reversed by setting \code{reverse = TRUE}.} \\
+      \pkg{VGAM}    & \code{vglm} & cumulative link     & $Pr\left\{\mathcal{Y} \le j\right\}$ \\
                     & \code{vgam} & cumulative link     & $Pr\left\{\mathcal{Y} \le j\right\}$ \\
       \bottomrule
   \end{tabular}
-  \caption{Ordinal regression modelling packages supported by \pkg{sure} and the corresponding parameterization they use for fitting cumulative link models.}
+  \caption{Ordinal regression modelling packages supported by \pkg{sure} and the corresponding parameterization they use for fitting cumulative link models. \strong{Note:} by default, \code{vglm} uses the same parameterization as in Equation~\eqref{eqn:clm}. This can be reversed by setting \code{reverse = TRUE}.}
   \label{tab:pkgs}
 \end{table}
 
