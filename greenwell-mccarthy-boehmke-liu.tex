@@ -207,12 +207,12 @@ grid.arrange(p1, p2, ncol = 2)  # Figure 1
 Similarly, we can use the \code{resids} function in package \pkg{sure} to obtain the surrogate residuals discussed in Section~\ref{sec:surrogate}. This is illustrated in the following code chunk. the results are displayed in Figure~\ref{fig:quadratic-correct-surrogate}. (\strong{Note:} since the surrogate residuals are based on random sampling, we specify the seed via the \code{set.seed} function throughout this paper for reproducibility.)
 \begin{example}
 # Obtain surrogate residuals
-library(ggplot2)  # needed for autoplot function
 library(sure)
 set.seed(101)  # for reproducibility
 sres <- resids(fit.polr)
 
 # Residual vs. covariate plot and Q-Q plot
+library(ggplot2)  # needed for autoplot function
 p1 <- autoplot(sres, what = "covariate", x = df1$x, xlab = "x")
 p2 <- autoplot(sres, what = "qq", distribution = pnorm)
 grid.arrange(p1, p2, ncol = 2)  # Figure 2
