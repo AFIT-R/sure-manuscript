@@ -117,7 +117,7 @@ dev.off()
 
 # Figure 7
 pdf(file = "gof.pdf", width = 7, height = 7)
-par(mfrow = c(2, 2), mar = c(2, 4, 2, 2) + 0.1) 
+par(mfrow = c(2, 2), mar = c(2, 4, 2, 2) + 0.1)
 set.seed(8491)  # for reproducibility
 plot(gof(fit.probit, nsim = 100, test = "ad"), main = "")
 plot(gof(fit.logistic, nsim = 100, test = "ad"), main = "")
@@ -130,35 +130,8 @@ dev.off()
 # Checking the proportionality assumption
 ################################################################################
 
-ordinalize <- function(z, threshold) {
-  sapply(z, FUN = function(x) {
-    ordinal.value <- 1
-    index <- 1
-    while(index <= length(threshold) && x > threshold[index]) {
-      ordinal.value <- ordinal.value + 1
-      index <- index + 1
-    }
-    ordinal.value
-  })
-}
-
-# Function to simulate the data from Example 5 in Dungang and Zhang (2017).
-simProportionalityData <- function(n = 2000) {
-  x <- runif(n, min = -3, max = 3)
-  z1 <- 0 - 1 * x + rnorm(n)
-  z2 <- 0 - 1.5 * x + rnorm(n)
-  y1 <- ordinalize(z1, threshold = c(-1.5, 0))
-  y2 <- ordinalize(z2, threshold = c(1, 3))
-  data.frame("y" = as.ordered(c(y1, y2)), "x" = c(x, x))
-}
-
-# Simulate data
-set.seed(977)
-df4 <- simProportionalityData(n = 2000)
-table(df4$y)
-
 # Fit separate models (VGAM should already be loaded)
-fit1 <- vglm(y ~ x, data = df4[1:2000, ], 
+fit1 <- vglm(y ~ x, data = df4[1:2000, ],
              cumulative(link = probit, parallel = TRUE))
 fit2 <- update(fit1, data = df4[2001:4000, ])
 
@@ -179,37 +152,13 @@ dev.off()
 # Interaction detection
 ################################################################################
 
-# Function to simulate data from an ordered probit model with an interaction
-# term
-simInteractionData <- function(n = 2000) {
-  threshold <- c(0, 20, 40)
-  x1 <- runif(n, min = 1, max = 7)
-  x2 <- gl(2, n / 2, labels = c("Control", "Treatment"))
-  z <- 16 - 5 * x1 + 3 * (x2 == "Treatment") + 10 * x1 * (x2 == "Treatment") + 
-    rnorm(n)
-  y <- sapply(z, FUN = function(zz) {
-    ordinal.value <- 1
-    index <- 1
-    while(index <= length(threshold) && zz > threshold[index]) {
-      ordinal.value <- ordinal.value + 1
-      index <- index + 1
-    }
-    ordinal.value
-  })
-  data.frame("y" = as.ordered(y), "x1" = x1, "x2" = x2)
-}
-
-# Simulate data
-set.seed(977)
-df4 <- simInteractionData(n = 2000)
-
 library(ordinal)  # for clm function
-fit1 <- clm(y ~ x1, data = df4[df4$x2 == "Control", ], link = "probit")
-fit2 <- clm(y ~ x1, data = df4[df4$x2 == "Treatment", ], link = "probit")
+fit1 <- clm(y ~ x1, data = df5[df5$x2 == "Control", ], link = "probit")
+fit2 <- clm(y ~ x1, data = df5[df5$x2 == "Treatment", ], link = "probit")
 
 set.seed(1105)  # for reproducibility
-d1 <- cbind(df4[df4$x2 == "Control",], sur = surrogate(fit1, nsim = 25))
-d2 <- cbind(df4[df4$x2 == "Treatment", ], sur = surrogate(fit2, nsim = 25))
+d1 <- cbind(df5[df5$x2 == "Control",], sur = surrogate(fit1, nsim = 25))
+d2 <- cbind(df5[df5$x2 == "Treatment", ], sur = surrogate(fit2, nsim = 25))
 p1 <- ggplot(d1, aes(x = x1, y = sur)) +
   geom_point(color = "#444444", shape = 19, size = 2, alpha = 0.5) +
   geom_smooth(se = FALSE, size = 1.2, color = "red") +
@@ -218,7 +167,7 @@ p1 <- ggplot(d1, aes(x = x1, y = sur)) +
 p2 <- ggplot(d2, aes(x = x1, y = sur)) +
   geom_point(color = "#444444", shape = 19, size = 2, alpha = 0.5) +
   geom_smooth(se = FALSE, size = 1.2, color = "red") +
-  ylab("Surrogate response") + 
+  ylab("Surrogate response") +
   xlab(expression(paste(x[1], " (treatment)")))
 pdf(file = "interaction.pdf", width = 8, height = 4)
 grid.arrange(p1, p2, ncol = 2)  # Figure 9
@@ -237,7 +186,7 @@ set.seed(1225)  # for reproducibility
 grid.arrange(  # Figure 10
   autoplot(wine.clm, nsim = 10, what = "qq"),
   autoplot(wine.clm, nsim = 10, what = "fitted", alpha = 0.5),
-  autoplot(wine.clm, nsim = 10, what = "covariate", x = wine$temp, 
+  autoplot(wine.clm, nsim = 10, what = "covariate", x = wine$temp,
            xlab = "Temperature"),
   autoplot(wine.clm, nsim = 10, what = "covariate", x = wine$contact,
            xlab = "Contact"),
